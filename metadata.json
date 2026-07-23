@@ -1,0 +1,6 @@
+{
+  "name": "Dashboard Kinh Doanh",
+  "description": "Hệ thống báo cáo hiệu suất kinh doanh đa nền tảng.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

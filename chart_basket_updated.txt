@@ -1,0 +1,61 @@
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col gap-6">
+          <div>
+            <div className="mb-4 flex justify-between items-start">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">
+                  Phân khúc Hóa đơn (Basket Size)
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Tỷ trọng các khoảng giá trị đơn hàng
+                </p>
+              </div>
+              <button
+                onClick={() =>
+                  openModal("Dữ liệu Phân khúc Hóa đơn", basketSizeData, [
+                    { key: "name", header: "Phân khúc (VND)" },
+                    { key: "value", header: "Tỷ trọng (%)", align: "right" },
+                  ])
+                }
+                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                title="Xem chi tiết dữ liệu"
+              >
+                <FileText className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="h-[200px] w-full mt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                  <Pie
+                    data={basketSizeData}
+                    innerRadius={50}
+                    outerRadius={75}
+                    paddingAngle={2}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="40%"
+                    cy="50%"
+                  >
+                    {basketSizeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={
+                      <CustomTooltip
+                        titleLabel="Phân khúc"
+                        valueFormatter={(val) => `${val}%`}
+                      />
+                    }
+                  />
+                  <Legend 
+                    layout="vertical" 
+                    verticalAlign="middle" 
+                    align="right"
+                    iconType="circle"
+                    wrapperStyle={{ fontSize: "11px", right: 0 }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
