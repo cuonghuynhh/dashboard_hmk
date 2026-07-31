@@ -87,15 +87,23 @@ export const RegionalComparison: React.FC = () => {
     const base = dataset.find(d => d.name === baseEntity) || fallbackBase;
     const compare = dataset.find(d => d.name === compareEntity) || fallbackCompare;
 
+    const calcIndex = (valA, valB) => {
+      if (valB === 0) return valA > 0 ? 200 : 100;
+      return Math.round((valA / valB) * 100);
+    };
+
     return [
-      { subject: "Doanh thu", A: base.revenue, B: compare.revenue },
-      { subject: "Tỷ lệ chuyển đổi", A: base.conversion, B: compare.conversion },
-      { subject: "GTTB Đơn hàng", A: base.basketSize, B: compare.basketSize },
-      { subject: "Lưu lượng KH", A: base.traffic, B: compare.traffic },
-      { subject: "Khách quay lại", A: base.returning, B: compare.returning },
-      { subject: "Độ hài lòng", A: base.satisfaction, B: compare.satisfaction },
+      { subject: "Doanh thu", A: calcIndex(base.revenue, compare.revenue), B: 100, A_Real: base.revenue, B_Real: compare.revenue },
+      { subject: "Tỷ lệ chuyển đổi", A: calcIndex(base.conversion, compare.conversion), B: 100, A_Real: base.conversion, B_Real: compare.conversion },
+      { subject: "GTTB Đơn hàng", A: calcIndex(base.basketSize, compare.basketSize), B: 100, A_Real: base.basketSize, B_Real: compare.basketSize },
+      { subject: "Lưu lượng KH", A: calcIndex(base.traffic, compare.traffic), B: 100, A_Real: base.traffic, B_Real: compare.traffic },
+      { subject: "Khách quay lại", A: calcIndex(base.returning, compare.returning), B: 100, A_Real: base.returning, B_Real: compare.returning },
+      { subject: "Độ hài lòng", A: calcIndex(base.satisfaction, compare.satisfaction), B: 100, A_Real: base.satisfaction, B_Real: compare.satisfaction },
     ];
   }, [baseEntity, compareEntity, compareType]);
+
+  const maxAIndex = Math.max(...chartData.map(d => d.A));
+  const radiusDomain = [0, Math.max(120, Math.ceil(maxAIndex / 20) * 20)];
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 mt-6 flex flex-col">
@@ -166,7 +174,7 @@ export const RegionalComparison: React.FC = () => {
             <RadarChart cx="50%" cy="50%" outerRadius="75%" data={chartData}>
               <PolarGrid stroke="#e2e8f0" />
               <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 12, fontWeight: 500 }} />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 10 }} tickCount={6} />
+              <PolarRadiusAxis angle={30} domain={radiusDomain} tick={{ fill: '#94a3b8', fontSize: 10 }} tickCount={6} />
               <Radar
                 name={baseEntity}
                 dataKey="A"
@@ -176,16 +184,20 @@ export const RegionalComparison: React.FC = () => {
                 strokeWidth={2}
               />
               <Radar
-                name={compareEntity}
+                name={compareEntity + " (Chuẩn 100)"}
                 dataKey="B"
                 stroke="#f59e0b"
-                fill="#fbbf24"
-                fillOpacity={0.4}
+                fill="none"
+                strokeDasharray="4 4"
                 strokeWidth={2}
               />
               <Tooltip
                 contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 itemStyle={{ fontSize: '13px', fontWeight: 500 }}
+                formatter={(value, name, props) => {
+                  if (name === baseEntity) return [`${value} (Thực tế: ${props.payload.A_Real})`, name];
+                  return [`${value} (Thực tế: ${props.payload.B_Real})`, name];
+                }}
               />
               <Legend wrapperStyle={{ paddingTop: '20px' }} />
             </RadarChart>
@@ -193,20 +205,20 @@ export const RegionalComparison: React.FC = () => {
         </div>
         
         <div className="w-full lg:w-1/3 flex flex-col gap-3">
-          <h3 className="font-semibold text-slate-700 mb-2 border-b border-slate-100 pb-2">Điểm chuẩn (Index: 100 = Khá)</h3>
+          <h3 className="font-semibold text-slate-700 mb-2 border-b border-slate-100 pb-2">Điểm chuẩn (Index: 100 = {compareEntity})</h3>
           
           {chartData.map((item, idx) => {
-            const diff = item.A - item.B;
-            const isPositive = diff >= 0;
+            const indexDiff = item.A - 100;
+            const isPositive = indexDiff >= 0;
             
             return (
               <div key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium text-slate-700">{item.subject}</div>
                   <div className="text-xs text-slate-500 mt-1 flex gap-3">
-                    <span className="text-indigo-600 font-semibold">{item.A}</span>
+                    <span className="text-indigo-600 font-semibold">{item.A_Real}</span>
                     <span className="text-slate-300">vs</span>
-                    <span className="text-amber-600 font-semibold">{item.B}</span>
+                    <span className="text-amber-600 font-semibold">{item.B_Real}</span>
                   </div>
                 </div>
                 
@@ -214,7 +226,7 @@ export const RegionalComparison: React.FC = () => {
                   isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
                 }`}>
                   <TrendingUp className={`w-3 h-3 ${!isPositive && 'rotate-180'}`} />
-                  {Math.abs(diff)}
+                  {Math.abs(indexDiff)}%
                 </div>
               </div>
             );
