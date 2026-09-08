@@ -40,18 +40,13 @@ export const RevenueWaterfallChart: React.FC = () => {
     const agg = aggregateMetrics(new Date(dateRange.start), new Date(dateRange.end), localRegion, localBranch);
     
     const gmv = agg.gmv;
-    const vat = gmv * 0.08;
-    const shipping = gmv * 0.03;
     const refunds = agg.refunds;
-    const promos = gmv * 0.05;
-    const netRev = agg.netRev;
+    // To ensure the waterfall has no visual gap, we calculate the remaining as netRev
+    const netRev = gmv - refunds; 
 
     return [
       { name: "Tổng GMV", value: gmv, color: "#bfdbfe", isTotal: false },
-      { name: "VAT (8%)", value: -vat, color: "#fca5a5", isTotal: false },
-      { name: "Phí vận chuyển", value: -shipping, color: "#fca5a5", isTotal: false },
       { name: "Hoàn/Hủy", value: -refunds, color: "#fca5a5", isTotal: false },
-      { name: "Khuyến mãi", value: -promos, color: "#fca5a5", isTotal: false },
       { name: "Thực thu", value: netRev, color: "#10b981", isTotal: true, base: gmv }
     ];
   }, [dateRange, localRegion, localBranch]);
@@ -94,7 +89,7 @@ export const RevenueWaterfallChart: React.FC = () => {
             }
             labelClassName=""
             description="Phân tích các khoản giảm trừ từ GMV (Tổng sức bán) xuống còn Doanh thu thuần (Thực thu)."
-            formula="Thực thu = GMV - VAT - Phí vận chuyển - Hoàn/Hủy - Ưu đãi/Khuyến mãi"
+            formula="Thực thu = GMV - Hoàn/Hủy"
             tooltipWidth="w-80"
           />
         </div>

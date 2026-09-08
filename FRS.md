@@ -12,45 +12,47 @@ Hệ thống hiển thị các menu và trang dựa trên quyền hạn của ng
 ## 3. Các Trang Dashboard
 
 ### 3.1. Tổng quan (Executive View)
-**Mục đích:** Cung cấp cái nhìn toàn cảnh về tình hình tài chính, dòng tiền và sự tăng trưởng của doanh nghiệp dành cho cấp lãnh đạo.
+**Mục đích:** Bảng điều khiển trung tâm dành cho Ban Giám đốc (BOD), cung cấp bức tranh toàn cảnh về sức khỏe tài chính và tiến độ thực hiện mục tiêu kinh doanh (KPI) của toàn bộ hệ thống.
 
-**Các tính năng & Biểu đồ:**
-- **Tính năng chuyển đổi VAT:** 
-  - Cho phép người dùng bật/tắt (toggle) tùy chọn "Bao gồm VAT" và "Không VAT". 
-  - Khi chọn "Không VAT", các chỉ số doanh thu trên các thẻ chỉ số chính sẽ được giảm trừ theo mức thuế suất quy định (mặc định giả định 10%).
+**Các tính năng & Giao diện chi tiết:**
 
-- **Thẻ Chỉ số Chính (Key Metrics Cards):**
-  - Các thẻ chỉ số hiển thị những con số quan trọng nhất (như Tổng Doanh thu, Tỷ suất Lợi nhuận, Số đơn hàng, Giá trị đơn trung bình, v.v.), có thể thay đổi linh hoạt theo tính năng chuyển đổi VAT.
+- **Thanh Lọc Toàn cục (Master Filter Bar):**
+  - Chức năng lọc Chu kỳ (Ngày/Tuần/Tháng/Quý/Năm) và khoảng thời gian (Từ ngày - Đến ngày).
+  - Lọc Khu vực/Chi nhánh toàn cục để đồng bộ dữ liệu toàn trang.
+  - Tích hợp Bộ lọc Đa chiều mở rộng (Ngành hàng, Khách hàng, Nhân sự, Trạng thái).
 
-- **Biểu đồ Xu hướng Tăng trưởng (YTD) (Growth Trend Chart):**
-  - *Mô tả:* Phân tích doanh thu phát sinh và lũy kế dòng tiền từ đầu năm đến nay (YTD).
+- **Thẻ Chỉ số Tài chính (Financial Overview Cards):**
+  - Hiển thị các chỉ số vĩ mô cốt lõi: **GMV**, **Khách hàng mới**, **Doanh thu**, **Giá trị điều chỉnh**, **Doanh thu thuần**, **Biên lợi nhuận gộp**, **Volume**, **AOV**. (Logic được định nghĩa chi tiết tại Mục 4.4).
+  - Tích hợp biểu đồ tia (Sparklines) nhỏ gọn bên trong mỗi thẻ để thể hiện xu hướng biến động nhanh của kỳ trước.
+
+- **Biểu đồ Xu hướng Lũy kế GMV & Net Revenue (GMV & Net Revenue Trend):**
+  - *Loại biểu đồ:* Biểu đồ kết hợp (Cột và Đường).
+  - *Dữ liệu:* So sánh trực quan khoảng cách giữa Sức bán (GMV) và Dòng tiền Thực thu (Net Revenue) theo từng khoảng thời gian.
+
+- **Phân tích Thác nước Doanh thu (Revenue Waterfall Chart):**
+  - *Loại biểu đồ:* Biểu đồ Thác nước (Waterfall Chart).
+  - *Dữ liệu:* Trực quan hóa hành trình dòng tiền từ Tổng Sức bán (GMV) đến Doanh thu thuần (Net Revenue). Cột giảm trừ bao gồm: Hoàn/Hủy.
+
+- **Biểu đồ Cấu trúc Sức bán (GMV Breakdown Chart):**
+  - *Loại biểu đồ:* Biểu đồ cột chồng (Stacked Bar Chart).
+  - *Dữ liệu:* Thể hiện tỷ trọng đóng góp của 2 luồng doanh thu chính: Đơn đặt hàng (Pre-order) và Đơn mua thẳng (Direct Order).
+
+- **Biểu đồ Xu hướng & Mục tiêu YTD (Revenue Trend & Target):**
   - *Loại biểu đồ:* Biểu đồ kết hợp (Composed Chart - Cột và Đường).
-  - *Dữ liệu & Logic tính toán:*
-    - **Cột (Bar):** Đại diện cho Doanh thu phát sinh trong từng kỳ (Ngày/Tuần/Tháng).
-    - **Đường (Line):** Biểu diễn Lũy kế Doanh thu YTD (tổng cộng dồn các kỳ trước đó).
-    - **Đường tham chiếu (Reference Line):** Thể hiện Mục tiêu YTD (Target).
-  - *Tính năng đi kèm:* 
-    - Lọc dữ liệu theo từng chi nhánh cụ thể (Dropdown chọn đa chi nhánh).
-    - Phân tích theo khung thời gian: Theo Ngày, Theo Tuần, Theo Tháng.
-    - Cửa sổ xem chi tiết dữ liệu (Data detail modal) với công thức tính Tiến độ (%) = (Lũy kế YTD / Mục tiêu) * 100.
+  - *Dữ liệu:* So sánh Doanh thu thực tế lũy kế (Actual YTD) với Mục tiêu lũy kế (Target YTD) qua các mốc thời gian.
+  - *Tính năng đi kèm:* Bộ lọc độc lập (Local Filter) cho phép tuỳ biến dữ liệu khu vực/chi nhánh không ảnh hưởng đến Filter chung.
 
-- **Biểu đồ Dòng tiền thu được - Thực thu (Actual Cash Flow Chart):**
-  - *Mô tả:* Phân tích dòng tiền thực tế thu về sau khi đã trừ đi các khoản hoàn trả/hủy đơn.
-  - *Loại biểu đồ:* Biểu đồ kết hợp (Composed Chart - Cột và Đường).
-  - *Dữ liệu & Logic tính toán:*
-    - **Cột (Bar):** Dòng tiền Thực thu phát sinh từng kỳ.
-    - **Đường (Line):** Lũy kế Thực thu YTD.
-    - **Đường tham chiếu (Reference Line):** Mục tiêu Thực thu.
-  - *Tính năng đi kèm:* Tương tự như Biểu đồ Xu hướng Tăng trưởng (YTD) bao gồm lọc chi nhánh, khung thời gian, và bảng chi tiết dữ liệu tiến độ.
+- **Bảng Xếp Hạng Hiệu suất (Top Performance Table):**
+  - *Loại hiển thị:* Bảng dữ liệu (Data Table).
+  - *Dữ liệu:* Vinh danh Top 5 Chi nhánh và Top 5 Sản phẩm mang lại doanh thu cao nhất, kèm theo đánh giá mức độ hoàn thành chỉ tiêu tương ứng của từng đối tượng.
 
-- **So sánh Doanh thu Chi nhánh (Branch Revenue Comparison):**
-  - *Loại biểu đồ:* Biểu đồ cột ngang (Horizontal Bar Chart).
-  - *Mục đích:* Hiển thị trực quan doanh thu đóng góp của từng chi nhánh/khu vực. Giúp nhận diện nhanh chi nhánh có hiệu suất cao nhất và thấp nhất.
+- **Bản đồ hiệu suất chi nhánh (Branch Performance Map):**
+  - *Loại biểu đồ:* Danh sách kết hợp đồ thị thanh ngang (Horizontal Bars).
+  - *Mục đích:* Hiển thị trực quan doanh thu đóng góp của từng chi nhánh/khu vực. Giúp nhận diện nhanh các chi nhánh đang dẫn đầu hoặc cần cải thiện.
 
-- **Biểu đồ Phân tích Tăng trưởng (Growth Analysis Chart):**
-  - *Loại biểu đồ:* Biểu đồ đường (Line Chart) đa tuyến.
-  - *Mục đích:* Phân tích tỷ lệ tăng trưởng doanh thu so với mục tiêu đặt ra qua các khoảng thời gian (Tháng/Quý).
-  - *Dữ liệu:* Thường hiển thị đường Tăng trưởng thực tế và đường Mục tiêu tăng trưởng để đánh giá khoảng cách hoàn thành (gap).
+- **Phân tích Tăng trưởng (Growth Analysis Chart):**
+  - *Loại biểu đồ:* Biểu đồ phân tán (Scatter Plot) kết hợp phân chia góc phần tư (Quadrant).
+  - *Dữ liệu:* Phân bố các cụm Chi nhánh dựa trên hai trục: Trục X (Tăng trưởng Doanh thu %) và Trục Y (Biên lợi nhuận %).
 
 ### 3.2. Vận hành & Khách hàng (Operational View)
 **Mục đích:** Đánh giá chi tiết hiệu quả vận hành, phân tích hành vi tệp khách hàng, tình trạng chuyển đổi và các biến động bất thường để tối ưu hóa nguồn lực.
@@ -59,57 +61,35 @@ Hệ thống hiển thị các menu và trang dựa trên quyền hạn của ng
 
 - **Cảnh báo Tồn đọng (Order Aging):**
   - *Loại biểu đồ:* Biểu đồ cột chồng (Stacked Bar Chart).
-  - *Dữ liệu:* Thể hiện số lượng hoặc giá trị đơn hàng chưa hoàn thành, được nhóm theo từng khoảng thời gian lưu đọng (1-5 ngày, 5-10 ngày, 10-20 ngày, > 20 ngày) cho từng trạng thái đơn (Ví dụ: Đóng gói, Vận chuyển).
-  - *Mục đích:* Phát hiện các nút thắt cổ chai trong quy trình vận hành để xử lý kịp thời.
-  - *Tính năng đi kèm:* Chuyển đổi hiển thị theo "Số lượng đơn" hoặc "Giá trị (VNĐ)".
+  - *Dữ liệu:* Thể hiện số lượng hoặc giá trị đơn hàng chưa hoàn thành, phân nhóm theo thời gian lưu đọng.
 
 - **Thời gian Bán hàng Tối ưu (Time Peak):**
-  - *Loại biểu đồ:* Biểu đồ nhiệt (Heatmap) thiết kế dưới dạng ma trận bảng lưới.
-  - *Dữ liệu:* Phân bổ cường độ, số lượng đơn hàng hoặc doanh thu theo các ngày trong tuần (Thứ 2 - Chủ Nhật) và các khung giờ trong ngày (0h - 24h). Màu sắc càng đậm thể hiện giá trị càng cao.
-  - *Mục đích:* Giúp ban quản lý phân bổ nhân sự ca trực hợp lý và lên lịch các chiến dịch Flash Sale vào các khung giờ vàng.
-  - *Tính năng đi kèm:* Cho phép xem heatmap theo "Lượt Đơn hàng" hoặc "Doanh thu".
+  - *Loại biểu đồ:* Biểu đồ nhiệt (Heatmap) thiết kế dưới dạng ma trận.
+  - *Dữ liệu:* Phân bổ cường độ đơn hàng/doanh thu theo các ngày trong tuần và khung giờ trong ngày.
 
 - **Phân tích Nhân khẩu học Khách hàng (Customer Demographics):**
-  - *Bao gồm 3 thành phần biểu đồ trực quan:*
-    1. **Biểu đồ Tròn (Pie Chart):** Cơ cấu theo Giới tính (Nam, Nữ, Khác).
-    2. **Biểu đồ Cột ngang (Horizontal Bar Chart):** Tỷ trọng theo từng phân khúc độ tuổi.
-    3. **Biểu đồ Tháp Dân số (Population Pyramid):** Biểu đồ cột chồng nằm ngang ngược chiều, kết hợp dữ liệu giữa các nhóm tuổi (trục Y) và tách hai phía theo giới tính (Nam/Nữ trên trục X).
-  - *Mục đích:* Nhận diện rõ chân dung nhóm khách hàng cốt lõi.
-  - *Tính năng đi kèm:* Cửa sổ hiển thị dữ liệu chi tiết, tính năng chuyển đổi xem theo "Lượt mua" (Số lượng) hoặc "Chi tiêu" (Giá trị).
+  - Bao gồm Biểu đồ Tròn (Pie Chart - Giới tính), Biểu đồ Cột ngang (Độ tuổi), và Biểu đồ Tháp Dân số (Population Pyramid).
 
 - **Phân khúc Hóa đơn (Basket Size):**
   - *Loại biểu đồ:* Biểu đồ tròn/Donut (Pie Chart).
-  - *Dữ liệu:* Tỷ trọng các nhóm đơn hàng được phân loại theo từng phân khúc giá trị rổ hàng (Ví dụ: Dưới 1 Triệu, 1-3 Triệu, Trên 3 Triệu).
-  - *Mục đích:* Xác định mức chi tiêu trung bình để có các chiến lược gia tăng AOV (Average Order Value).
+  - *Dữ liệu:* Tỷ trọng các nhóm đơn hàng phân theo giá trị (Dưới 1 Triệu, 1-3 Triệu, Trên 3 Triệu).
 
 - **Hình thức Thanh toán (Payment Methods):**
-  - *Loại biểu đồ:* Biểu đồ thanh ngang tỷ trọng thành phần (Custom Stacked Horizontal Bar).
+  - *Loại biểu đồ:* Biểu đồ thanh ngang (Stacked Horizontal Bar).
   - *Dữ liệu:* Tỷ lệ % giao dịch của các hình thức thanh toán (COD, Chuyển khoản, Thẻ, Ví điện tử).
-  - *Mục đích:* Theo dõi xu hướng lựa chọn phương thức thanh toán của người dùng, làm cơ sở đàm phán phí với các đối tác thanh toán.
 
 - **Hiệu quả Chiến dịch (Marketing & Promotions):**
-  - *Loại hiển thị:* Bảng dữ liệu danh sách (Data Table).
-  - *Dữ liệu:* Thống kê Doanh thu mang lại và Số lượng đơn hàng tương ứng với từng chương trình Marketing/Khuyến mãi cụ thể.
+  - *Loại hiển thị:* Bảng dữ liệu (Data Table).
+  - *Dữ liệu:* Thống kê Doanh thu và Số lượng đơn hàng tương ứng với từng chương trình Marketing.
 
-- **Tỷ lệ Chuyển đổi (Conversion Rate):**
-  - *Loại biểu đồ:* Biểu đồ kết hợp (Composed Chart - Cột và Đường).
-  - *Dữ liệu:* Trực quan hóa phễu bán hàng theo thời gian thực (Lượt truy cập/Khách vào cửa hàng, Lượt tư vấn/Thêm vào giỏ, và Khách mua hàng thực tế). Đường Tỷ lệ chuyển đổi (%) hiển thị sự biến động của hiệu suất chốt sale.
-  - *Logic tính toán:* `Tỷ lệ chuyển đổi (%) = (Số khách mua hàng / Tổng số lượt truy cập) * 100`.
+- **So sánh Khu vực (Regional Comparison):**
+  - So sánh trực tiếp hiệu suất (Doanh thu, Đơn hàng) giữa các vùng miền/khu vực kinh doanh.
 
-- **Tỷ lệ Hoàn tiền/Hủy đơn (Refund Rate):**
-  - *Loại biểu đồ:* Biểu đồ Cột (Bar Chart).
-  - *Dữ liệu:* Theo dõi lượng đơn hoặc giá trị tiền bị hoàn trả qua các kỳ.
-  - *Mục đích:* Đánh giá rủi ro, chất lượng sản phẩm và dịch vụ sau bán.
-  - *Logic tính toán:* `Tỷ lệ hoàn tiền (%) = (Số đơn hoàn trả / Tổng số đơn hàng) * 100`.
+- **Phát hiện Cảnh báo Bất thường (Anomaly Detection):**
+  - Phân tích các điểm dữ liệu dị thường (ví dụ: Tỷ lệ hoàn/hủy tăng đột biến) để đưa ra cảnh báo sớm.
 
-- **Benchmarking Hiệu suất Vùng/Khu vực (Regional Comparison):**
-  - *Loại biểu đồ:* Biểu đồ Radar (Radar Chart) hoặc Biểu đồ Cột so sánh đa biến. *(Lưu ý: Thiết kế hiện tại thường dùng Radar hoặc Bar tùy dữ liệu)*
-  - *Dữ liệu:* So sánh chéo các chỉ số hiệu suất (Doanh thu, Tỷ lệ chốt sale, Tăng trưởng) của các chi nhánh so với mức Trung bình hệ thống (Điểm chuẩn Index 100).
-
-- **Phát hiện Bất thường (Anomaly Detection):**
-  - *Loại biểu đồ:* Biểu đồ Đường (Line chart) kết hợp điểm phân tán (Scatter marks) cho các giá trị ngoại lai (outliers).
-  - *Dữ liệu:* Theo dõi chuỗi thời gian của doanh thu/đơn hàng, tự động vẽ đường trung bình biến đổi (Moving Average) làm đường giới hạn.
-  - *Mục đích:* Sử dụng hệ thống cảnh báo đánh dấu (điểm tròn đỏ/vàng) những ngày/khung giờ có lượng đơn sụt giảm hoặc tăng vọt bất thường vượt ngưỡng cho phép.
+- **Phân tích Chuyển đổi và Hoàn/Hủy (Conversion & Refund Analysis):**
+  - Cung cấp góc nhìn về hành trình chuyển đổi (Phễu) và nguyên nhân chi tiết dẫn đến hoàn trả/hủy đơn.
 
 ### 3.3. Sản phẩm & Tồn kho (Product View)
 **Mục đích:** Quản lý vòng đời sản phẩm, đánh giá chi tiết sức khỏe của từng ngành hàng/thương hiệu và tối ưu hóa quản trị hàng tồn kho dựa trên dữ liệu tiêu thụ.
@@ -245,3 +225,58 @@ Thực tế kinh doanh thường phát sinh sự thay đổi giá trị trong qu
 - **Điều chỉnh tăng/giảm (Upsell/Downsell):** Giá trị chênh lệch (nếu có) khi xử lý từ Đơn đặt thành Đơn hàng sẽ được ghi nhận vào một dòng dữ liệu riêng biệt gọi là **"Điều chỉnh GMV"** (Chênh lệch chuyển đổi).
 - **Hoàn/Hủy:** Dòng tiền bị rút ra do khách trả hàng hoặc hủy cọc cũng được hạch toán vào Điều chỉnh.
 - **Doanh thu thuần (Net Revenue):** Căn cứ theo dòng sự kiện trên, Doanh thu thuần cuối cùng sẽ là: `GMV + Điều chỉnh GMV (bao gồm cả giá trị chênh lệch đơn đặt và các khoản hoàn/hủy)`. Sự dịch chuyển này được thể hiện trực quan qua Biểu đồ Thác nước (Waterfall Chart).
+
+### 4.4. Checklist Các Chỉ số Tài chính & Vận hành (Financial Metrics Spec)
+
+Dưới đây là đặc tả logic tính toán cho các chỉ số tài chính và vận hành cốt lõi (Overview Cards) hiển thị trên bảng điều khiển:
+
+**1. GMV (SỨC BÁN)**
+- **Ý nghĩa:** Tổng sức bán phát sinh (Gross Merchandise Value) trong kỳ hiện tại.
+- **Công thức (Logic):** `Tổng giá trị Đơn Đặt + Giá trị Đơn mua thẳng` (Không bao gồm đơn chuyển đổi từ Đơn Đặt cũ để tránh tính trùng).
+- **Format UI:** Tỷ VNĐ.
+- **Bóc tách Sub-info:** `Sức bán Trước VAT = Tổng GMV / 1.08`, `VAT = Tổng GMV - Sức bán Trước VAT`.
+
+**2. KHÁCH HÀNG MỚI**
+- **Ý nghĩa:** Số lượng khách hàng lần đầu mua sắm tại hệ thống trong kỳ.
+- **Công thức (Logic):** Đếm số khách hàng có `isFirstTimeBuyer == true`. (Hiện tại mock = `30% x Tổng số đơn hàng`).
+- **Format UI:** Khách.
+
+**3. DOANH THU (GROSS REVENUE)**
+- **Ý nghĩa:** Doanh thu thu về dựa trên dòng tiền thực tế (Cash-basis) trước khi trừ các khoản hoàn/hủy/chiết khấu sau bán.
+- **Công thức (Logic):** `Tổng toàn bộ dòng tiền thực thu (Cash in)` từ các Đơn mua thẳng, Đơn đặt (cọc), và thanh toán nốt phần còn lại.
+- **Format UI:** Tỷ VNĐ.
+
+**4. GIÁ TRỊ ĐIỀU CHỈNH**
+- **Ý nghĩa:** Tổng số tiền bị hao hụt hoặc sinh thêm từ các nghiệp vụ thay đổi sau khi chốt đơn.
+- **Công thức (Logic):** `(Chênh lệch Upsell/Downsell từ Đơn Đặt thành Đơn hàng) + (Các khoản Hoàn/Hủy cọc)`.
+- **Format UI:** Triệu VNĐ (luôn có dấu `-` đằng trước nếu giảm trừ).
+
+**5. DOANH THU THUẦN (NET REVENUE)**
+- **Ý nghĩa:** Dòng tiền ròng thực tế doanh nghiệp bỏ túi sau khi đã cấn trừ hoàn/hủy.
+- **Công thức (Logic):** `GMV (Sức bán) - Hoàn/Hủy` (Logic được áp dụng trên biểu đồ Thác nước).
+- **Format UI:** Tỷ VNĐ.
+
+**6. BIÊN LỢI NHUẬN GỘP (GROSS MARGIN)**
+- **Ý nghĩa:** Tỷ lệ lợi nhuận giữ lại được sau khi trừ đi chi phí cấu thành sản phẩm.
+- **Công thức (Logic):** `((Doanh thu thuần - Giá vốn hàng bán) / Doanh thu thuần) * 100`
+- **Format UI:** % (Làm tròn 1 chữ số thập phân).
+
+**7. ĐƠN HÀNG (VOLUME)**
+- **Ý nghĩa:** Số lượng giao dịch thành công.
+- **Công thức (Logic):** `Tổng số lượng Đơn Đặt + Tổng số lượng Đơn mua thẳng` (Đếm số `OrderID` phát sinh không bị Hủy).
+- **Format UI:** Đơn (Format hàng nghìn: `1.234`).
+
+**8. GIÁ TRỊ ĐƠN TB (AOV)**
+- **Ý nghĩa:** Số tiền trung bình mà một khách hàng chi trả trên mỗi hóa đơn.
+- **Công thức (Logic):** `Doanh thu thuần / Tổng số đơn hàng (Volume)`.
+- **Format UI:** Triệu/Đơn. Bóc tách Sub-info tương tự GMV (Trước VAT và VAT).
+
+### 4.5. Logic So sánh Lũy kế (Trend / Growth Rate)
+
+Áp dụng chung cho tất cả các chỉ số (Trend %):
+1. **Dữ liệu kỳ gốc (Base Data):** Lấy dữ liệu thuộc khoảng `[dateRange.start, dateRange.end]`.
+2. **Dữ liệu kỳ so sánh (Previous Period):** 
+   - `Diff = dateRange.end - dateRange.start`.
+   - Kỳ so sánh: `[dateRange.start - Diff, dateRange.start - 1 ngày]`.
+3. **Công thức Growth Rate:** `((Giá trị kỳ gốc - Giá trị kỳ so sánh) / Giá trị kỳ so sánh) * 100`.
+4. **UI Tooltip:** Luôn in ra dải ngày của kỳ gốc và kỳ so sánh dưới dạng `DD/MM/YYYY — DD/MM/YYYY` ở dưới cùng (footer) của mỗi chỉ số.
