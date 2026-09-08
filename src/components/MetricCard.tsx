@@ -15,9 +15,11 @@ import {
   Package,
   CalendarDays,
   Trash2,
+  Info,
 } from "lucide-react";
 import { MetricData } from "../types";
 import { cn } from "../lib/utils";
+import { InfoTooltip } from "./InfoTooltip";
 
 interface MetricCardProps {
   data: MetricData;
@@ -155,9 +157,19 @@ export const MetricCard: React.FC<MetricCardProps> = ({ data }) => {
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex flex-col h-full">
       <div className="flex justify-between items-start mb-2">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-          {data.title}
-        </h3>
+        {data.description ? (
+          <div className="uppercase tracking-wider">
+            <InfoTooltip
+              label={<span className="font-semibold">{data.title}</span>}
+              description={data.description}
+              tooltipPosition="center"
+            />
+          </div>
+        ) : (
+          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+            {data.title}
+          </h3>
+        )}
         <div className={cn("p-2 rounded-lg", getIconBgColor(data.iconType))}>
           {getIcon(data.iconType)}
         </div>

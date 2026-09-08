@@ -1,227 +1,203 @@
-import React, { useState, useMemo } from "react";
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  ReferenceLine,
-  Cell
-} from "recharts";
-import { Filter, TrendingUp, TrendingDown } from "lucide-react";
+import React, { useState, useMemo } from 'react';
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
+import { TrendingUp } from 'lucide-react';
+import { useAppContext } from "../AppContext";
+import { generateChartDataByPeriod, aggregateMetrics, seededRandom } from "../utils/chartEngine";
+import { InfoTooltip } from "./InfoTooltip";
+import { useLocalFilter } from "../hooks/useLocalFilter";
+import { LocalFilterUI } from "./LocalFilterUI";
 
-type MetricType = "revenue" | "orders";
-type ComparisonType = "wow" | "mom" | "yoy";
-type DimensionType = "system" | "region" | "branch";
+type ViewMode = "gmv" | "netRev";
 
-const regions = ["Hồ Chí Minh", "Miền Bắc", "Miền Trung", "Đông Nam Bộ"];
-const branches = ["HMK HN Chi nhánh 1", "HMK ĐN Chi nhánh 2", "HMK BD Chi nhánh 3", "HMK Chi nhánh 4", "HMK HN Chi nhánh 5"];
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const current = payload.find((p: any) => p.dataKey === 'current')?.value || 0;
+    const previous = payload.find((p: any) => p.dataKey === 'previous')?.value || 0;
+    const growth = payload.find((p: any) => p.dataKey === 'growth')?.value || 0;
+    
+    const isPositive = growth >= 0;
 
-// Mock data generator
-const generateData = (comp: ComparisonType, dim: DimensionType) => {
-  const periods = comp === "wow" ? ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"] 
-               : comp === "mom" ? ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8"]
-               : ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
-
-  return periods.map(p => {
-    const row: any = { period: p };
-    if (dim === "system") {
-      row["Toàn hệ thống"] = (Math.random() * 40) - 15; // -15% to 25%
-    } else if (dim === "region") {
-      regions.forEach(r => {
-        row[r] = (Math.random() * 50) - 20;
-      });
-    } else {
-      branches.forEach(b => {
-        row[b] = (Math.random() * 60) - 30;
-      });
-    }
-    return row;
-  });
+    return (
+      <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg min-w-[200px]">
+        <p className="font-semibold text-slate-800 mb-2 border-b border-slate-100 pb-2">{label}</p>
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#4f46e5]" />
+              <span className="text-slate-600">Kỳ này (Current):</span>
+            </div>
+            <span className="font-semibold text-slate-700">{Math.round(current).toLocaleString('vi-VN')} Tr</span>
+          </div>
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full border-2 border-slate-400 bg-transparent" />
+              <span className="text-slate-600">Kỳ trước (Previous):</span>
+            </div>
+            <span className="font-semibold text-slate-700">{Math.round(previous).toLocaleString('vi-VN')} Tr</span>
+          </div>
+          <div className="flex justify-between items-center text-sm pt-2 border-t border-slate-100 mt-1">
+            <span className="text-slate-600 font-medium">Tăng trưởng:</span>
+            <span className={`font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+              {isPositive ? '+' : ''}{growth.toFixed(1).replace('.', ',')}%
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
 };
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4"];
-
 export const GrowthAnalysisChart: React.FC = () => {
-  const [metric, setMetric] = useState<MetricType>("revenue");
-  const [comparison, setComparison] = useState<ComparisonType>("mom");
-  const [dimension, setDimension] = useState<DimensionType>("region");
-  const [selectedEntity, setSelectedEntity] = useState<string>("all");
+  const { dateRange, period } = useAppContext();
+  const { localRegion, setLocalRegion, localBranch, setLocalBranch } = useLocalFilter();
+  const [viewMode, setViewMode] = useState<ViewMode>("gmv");
 
-  const data = useMemo(() => generateData(comparison, dimension), [comparison, dimension]);
+  const data = useMemo(() => {
+    return generateChartDataByPeriod(
+      dateRange.start, 
+      dateRange.end, 
+      period, 
+      (s, e) => {
+        const agg = aggregateMetrics(s, e, localRegion, localBranch);
+        
+        const currentGmv = agg.gmv;
+        const currentNet = agg.netRev;
+        
+        const seed = s.getTime();
+        const variation = 0.8 + (seededRandom(seed) * 0.4); 
+        
+        const prevGmv = currentGmv / variation;
+        const prevNet = currentNet / variation;
 
-  const dataKeys = useMemo(() => {
-    if (dimension === "system") return ["Toàn hệ thống"];
-    if (dimension === "region") return selectedEntity === "all" ? regions : [selectedEntity];
-    return selectedEntity === "all" ? branches : [selectedEntity];
-  }, [dimension, selectedEntity]);
+        const currentVal = viewMode === "gmv" ? currentGmv : currentNet;
+        const prevVal = viewMode === "gmv" ? prevGmv : prevNet;
+        
+        const growth = prevVal > 0 ? ((currentVal - prevVal) / prevVal) * 100 : 0;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 border border-slate-100 shadow-lg rounded-lg">
-          <p className="font-semibold text-slate-800 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center gap-2 mb-1">
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} />
-              <span className="text-sm text-slate-600">{entry.name}:</span>
-              <span className={`text-sm font-semibold ${entry.value >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                {entry.value > 0 ? "+" : ""}{entry.value.toFixed(1)}%
-              </span>
-            </div>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+        return {
+          current: currentVal,
+          previous: prevVal,
+          growth: growth
+        };
+      }
+    ).map(d => ({
+      name: d.label,
+      current: d.current,
+      previous: d.previous,
+      growth: d.growth
+    }));
+  }, [dateRange, period, viewMode, localRegion, localBranch]);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col overflow-hidden mt-6">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col mt-6">
       <div className="p-5 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-indigo-600" />
-            Phân tích Tăng trưởng (Growth Rate)
-          </h2>
-          <p className="text-sm text-slate-500">
-            Theo dõi tỷ lệ tăng trưởng doanh thu / doanh số theo các chiều
-          </p>
+          <InfoTooltip
+            label={
+              <span className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-indigo-600" />
+                Phân tích Tăng trưởng (Growth Rate)
+              </span>
+            }
+            labelClassName=""
+            description="So sánh hiệu suất kỳ này với kỳ trước. Thanh biểu đồ thể hiện % tăng trưởng."
+            formula="Tăng trưởng (%) = ((Kỳ này - Kỳ trước) / Kỳ trước) * 100"
+            tooltipWidth="w-72"
+          />
         </div>
         
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <LocalFilterUI 
+            localRegion={localRegion}
+            setLocalRegion={setLocalRegion}
+            localBranch={localBranch}
+            setLocalBranch={setLocalBranch}
+          />
           <div className="flex bg-slate-100 p-1 rounded-md">
-            {[
-              { id: "revenue", label: "Doanh thu" },
-              { id: "orders", label: "Doanh số" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setMetric(tab.id as MetricType)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  metric === tab.id
-                    ? "bg-white shadow-sm text-slate-800"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            <button 
+              onClick={() => setViewMode("gmv")}
+              className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${viewMode === 'gmv' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-600 hover:bg-slate-200'}`}>
+              Phân tích GMV
+            </button>
+            <button 
+              onClick={() => setViewMode("netRev")}
+              className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${viewMode === 'netRev' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-600 hover:bg-slate-200'}`}>
+              Phân tích Thực thu
+            </button>
           </div>
-
-          <div className="flex bg-slate-100 p-1 rounded-md">
-            {[
-              { id: "wow", label: "WoW" },
-              { id: "mom", label: "MoM" },
-              { id: "yoy", label: "YoY" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setComparison(tab.id as ComparisonType)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  comparison === tab.id
-                    ? "bg-white shadow-sm text-slate-800"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex bg-slate-100 p-1 rounded-md">
-            {[
-              { id: "system", label: "Hệ thống" },
-              { id: "region", label: "Khu vực" },
-              { id: "branch", label: "Chi nhánh" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setDimension(tab.id as DimensionType);
-                  setSelectedEntity("all");
-                }}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  dimension === tab.id
-                    ? "bg-white shadow-sm text-slate-800"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {dimension === "region" && (
-            <select
-              value={selectedEntity}
-              onChange={(e) => setSelectedEntity(e.target.value)}
-              className="border border-slate-200 bg-white text-slate-700 px-3 py-1.5 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-            >
-              <option value="all">Tất cả Khu vực</option>
-              {regions.map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          )}
-
-          {dimension === "branch" && (
-            <select
-              value={selectedEntity}
-              onChange={(e) => setSelectedEntity(e.target.value)}
-              className="border border-slate-200 bg-white text-slate-700 px-3 py-1.5 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm max-w-[150px]"
-            >
-              <option value="all">Top 5 Chi nhánh</option>
-              {branches.map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-          )}
         </div>
       </div>
       
       <div className="p-5">
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            {dimension === "system" ? (
-              <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={10} />
-                <YAxis tickFormatter={(val) => `${val}%`} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f8fafc" }} />
-                <ReferenceLine y={0} stroke="#cbd5e1" />
-                <Bar dataKey="Toàn hệ thống" radius={[4, 4, 0, 0]}>
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry["Toàn hệ thống"] >= 0 ? "#10b981" : "#fb7185"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            ) : (
-              <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={10} />
-                <YAxis tickFormatter={(val) => `${val}%`} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }} />
-                <ReferenceLine y={0} stroke="#cbd5e1" strokeWidth={2} strokeDasharray="3 3" />
-                {dataKeys.map((key, idx) => (
-                  <Line
-                    key={key}
-                    type="monotone"
-                    dataKey={key}
-                    stroke={COLORS[idx % COLORS.length]}
-                    strokeWidth={2}
-                    dot={{ r: 4, strokeWidth: 2 }}
-                    activeDot={{ r: 6, strokeWidth: 0 }}
-                  />
+            <ComposedChart
+              data={data}
+              margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
+              
+              <YAxis 
+                yAxisId="left" 
+                tickFormatter={(val) => `${val}Tr`} 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 11, fill: "#94a3b8" }} 
+              />
+              
+              <YAxis 
+                yAxisId="right" 
+                orientation="right" 
+                tickFormatter={(val) => `${val}%`}
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fontSize: 11, fill: "#94a3b8" }} 
+              />
+              
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f8fafc" }} />
+              <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: "12px", paddingTop: "20px" }} />
+              
+              <ReferenceLine yAxisId="right" y={0} stroke="#cbd5e1" strokeWidth={1} />
+              
+              <Line 
+                yAxisId="left" 
+                type="monotone" 
+                name="Kỳ trước (Base)" 
+                dataKey="previous" 
+                stroke="#94a3b8" 
+                strokeWidth={2} 
+                strokeDasharray="5 5"
+                dot={{ r: 3, fill: "white", stroke: "#94a3b8", strokeWidth: 2 }} 
+                activeDot={{ r: 5 }} 
+              />
+
+              <Line 
+                yAxisId="left" 
+                type="monotone" 
+                name="Kỳ này (Actual)" 
+                dataKey="current" 
+                stroke="#4f46e5" 
+                strokeWidth={3} 
+                dot={{ r: 4, fill: "white", stroke: "#4f46e5", strokeWidth: 2 }} 
+                activeDot={{ r: 6 }} 
+              />
+
+              <Bar 
+                yAxisId="right" 
+                dataKey="growth" 
+                name="Tăng trưởng (%)" 
+                radius={[4, 4, 4, 4]} 
+                maxBarSize={40}
+                fill="#10b981"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.growth >= 0 ? "#10b981" : "#fb7185"} />
                 ))}
-              </LineChart>
-            )}
+              </Bar>
+
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>

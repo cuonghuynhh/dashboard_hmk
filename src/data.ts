@@ -17,6 +17,7 @@ const generateSparkline = (
 export const executiveMetrics: MetricData[] = [
   {
     title: "DOANH THU (REVENUE)",
+    description: "Dòng tiền thực tế thu về sau khi trừ hoàn/hủy. Ghi nhận tại thời điểm đơn hàng được thanh toán đủ (PAID_IN_FULL).",
     unit: "Tỷ VNĐ",
     subValue: "Có VAT: 45.2T | Không VAT: 41.1T",
     currentValueNumber: 45.2,
@@ -29,6 +30,7 @@ export const executiveMetrics: MetricData[] = [
   },
   {
     title: "DOANH SỐ (GROSS SALES)",
+    description: "Tổng giá trị đơn đặt phát sinh trong kỳ + giá trị đơn hàng KHÔNG CÓ ĐƠN ĐẶT phát sinh trong kỳ (GMV).",
     unit: "Tỷ VNĐ",
     subValue: "Có VAT: 48.5T | Không VAT: 44.1T",
     currentValueNumber: 48.5,
@@ -41,6 +43,7 @@ export const executiveMetrics: MetricData[] = [
   },
   {
     title: "BIÊN LỢI NHUẬN GỘP",
+    description: "Tỷ lệ phần trăm doanh thu còn lại sau khi trừ đi giá vốn hàng bán (COGS). Công thức: (Doanh thu thuần - Giá vốn) / Doanh thu thuần.",
     unit: "%",
     subValue: "Cơ cấu gọng kính cao",
     currentValueNumber: 68.5,
@@ -53,6 +56,7 @@ export const executiveMetrics: MetricData[] = [
   },
   {
     title: "ĐƠN HÀNG (VOLUME)",
+    description: "Tổng số lượng đơn hàng đã hoàn tất (Completed) trong kỳ báo cáo.",
     unit: "Đơn",
     subValue: "Đã hoàn thành",
     currentValueNumber: 12450,
@@ -63,6 +67,7 @@ export const executiveMetrics: MetricData[] = [
   },
   {
     title: "GIÁ TRỊ ĐƠN TB (AOV)",
+    description: "Giá trị trung bình của mỗi đơn hàng. Công thức: Doanh thu thuần / Tổng số đơn hàng hoàn thành.",
     unit: "Triệu/Đơn",
     subValue: "Năng lực up-sell",
     currentValueNumber: 3.6,

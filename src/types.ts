@@ -2,6 +2,7 @@ export type Trend = "up" | "down" | "neutral";
 
 export interface MetricData {
   title: string;
+  description?: string; // Mô tả ý nghĩa, cách tính của chỉ số
   value?: string;
   unit?: string;
   subValue?: string; // Added for VAT / No VAT breakdown

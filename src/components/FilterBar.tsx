@@ -11,10 +11,11 @@ import {
   Store,
 } from "lucide-react";
 import { useAppContext } from "../AppContext";
+import { LocalFilterUI } from "./LocalFilterUI";
 
 export const FilterBar: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const { role, isRefreshing, refreshData } = useAppContext();
+  const { role, isRefreshing, refreshData, dateRange, setDateRange, period, setPeriod, globalRegion, setGlobalRegion, globalBranch, setGlobalBranch } = useAppContext();
 
   return (
     <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
@@ -23,24 +24,26 @@ export const FilterBar: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-slate-600 font-medium">Chu kỳ:</span>
-            <select className="border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 outline-none hover:border-indigo-400">
-              <option>Tùy chọn ngày</option>
-              <option>YTD (Đầu năm đến nay)</option>
-              <option>Tuần này</option>
-              <option>Tháng này</option>
-              <option>Quý này</option>
+            <select 
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as any)}
+              className="border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 outline-none hover:border-indigo-400">
+              <option value="day">Theo Ngày</option>
+              
+              <option value="week">Theo Tuần</option>
+              <option value="month">Theo Tháng</option>
+              <option value="quarter">Theo Quý</option>
+            <option value="year">Theo Năm</option>
             </select>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-600">
-              <CalendarIcon className="w-4 h-4 mr-2 text-slate-400" />{" "}
-              01/07/2026
+            <div className="flex items-center border border-slate-300 rounded-md px-2 py-1 text-sm bg-white text-slate-600">
+              <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} className="outline-none bg-transparent" />
             </div>
             <span className="text-slate-400">-</span>
-            <div className="flex items-center border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-600">
-              <CalendarIcon className="w-4 h-4 mr-2 text-slate-400" />{" "}
-              31/07/2026
+            <div className="flex items-center border border-slate-300 rounded-md px-2 py-1 text-sm bg-white text-slate-600">
+              <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className="outline-none bg-transparent" />
             </div>
           </div>
         </div>
@@ -49,13 +52,12 @@ export const FilterBar: React.FC = () => {
         <div className="flex items-center gap-3">
           {role === "BOD" && (
             <>
-              <button className="flex items-center border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 hover:bg-slate-50">
-                <Map className="w-4 h-4 mr-2 text-slate-400" /> Toàn quốc
-              </button>
-              <button className="flex items-center border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 hover:bg-slate-50">
-                Tất cả Chi nhánh{" "}
-                <ChevronDown className="w-4 h-4 ml-2 text-slate-400" />
-              </button>
+              <LocalFilterUI 
+                localRegion={globalRegion}
+                setLocalRegion={setGlobalRegion}
+                localBranch={globalBranch}
+                setLocalBranch={setGlobalBranch}
+              />
             </>
           )}
           {role === "MANAGER" && (

@@ -226,3 +226,22 @@ Hệ thống hiển thị các menu và trang dựa trên quyền hạn của ng
     - Mở một Modal chỉnh sửa nhanh cho phép điều chỉnh cùng một lúc (Tăng/Giảm theo % hoặc Nhập số liệu mới tuyệt đối) cho `Mục tiêu Doanh thu`, `Tỷ lệ Chuyển đổi`.
     - Cho phép thay đổi `Chu kỳ` hoặc thời hạn áp dụng chung cho tất cả các chi nhánh đang được chọn.
   - *Mục đích:* Tiết kiệm tối đa thời gian vận hành khi cần điều chỉnh mục tiêu hệ thống (ví dụ: Tăng đồng loạt target doanh thu của tất cả chi nhánh miền Nam lên 10% trong tháng tới).
+
+## 4. Quy trình Xử lý Đơn hàng & Định nghĩa Dữ liệu (Order Processing & Data Definitions)
+
+### 4.1. Quy trình xử lý Đơn đặt hàng và Đơn hàng
+Hệ thống quản lý bán hàng vận hành dựa trên hai luồng tạo đơn chính:
+- **Luồng 1 (Khách mua trực tiếp):** Khách hàng chọn sản phẩm (gọng, tròng có sẵn) và thanh toán toàn bộ. Thu ngân sẽ lên trực tiếp **Đơn hàng (Direct Order)**.
+- **Luồng 2 (Khách đặt cọc/cắt kính):** Khách hàng cần đo mắt, cắt tròng theo yêu cầu hoặc đặt mẫu không có sẵn tại cửa hàng. Thu ngân thu tiền cọc và lên **Đơn đặt hàng (Pre-order)**. Sau khi hàng hóa sẵn sàng và giao cho khách, Đơn đặt hàng này mới được chuyển đổi trạng thái thành **Đơn hàng**.
+
+### 4.2. Định nghĩa Gross Merchandise Value (GMV)
+Trong báo cáo tài chính của hệ thống, chỉ số **DOANH SỐ (GMV)** được tính toán theo thời gian thực dựa trên luồng xử lý trên:
+- **Công thức GMV:** `Tổng giá trị Đơn đặt phát sinh trong kỳ + Tổng giá trị Đơn mua thẳng (không qua đơn đặt) phát sinh trong kỳ`.
+- *Lưu ý:* Khi một Đơn đặt hàng được xử lý và chuyển thành Đơn hàng trong tương lai, giá trị gốc của đơn đó KHÔNG được cộng lại vào GMV để tránh tình trạng tính trùng (double-counting).
+
+### 4.3. Ghi nhận Giá trị Điều chỉnh (GMV Adjustment)
+Thực tế kinh doanh thường phát sinh sự thay đổi giá trị trong quá trình xử lý từ Đơn đặt hàng thành Đơn hàng (Khách mua thêm phụ kiện, đổi gọng kính đắt/rẻ tiền hơn, hoặc hủy đơn). 
+Để đảm bảo tính minh bạch dữ liệu tài chính:
+- **Điều chỉnh tăng/giảm (Upsell/Downsell):** Giá trị chênh lệch (nếu có) khi xử lý từ Đơn đặt thành Đơn hàng sẽ được ghi nhận vào một dòng dữ liệu riêng biệt gọi là **"Điều chỉnh GMV"** (Chênh lệch chuyển đổi).
+- **Hoàn/Hủy:** Dòng tiền bị rút ra do khách trả hàng hoặc hủy cọc cũng được hạch toán vào Điều chỉnh.
+- **Doanh thu thuần (Net Revenue):** Căn cứ theo dòng sự kiện trên, Doanh thu thuần cuối cùng sẽ là: `GMV + Điều chỉnh GMV (bao gồm cả giá trị chênh lệch đơn đặt và các khoản hoàn/hủy)`. Sự dịch chuyển này được thể hiện trực quan qua Biểu đồ Thác nước (Waterfall Chart).

@@ -1,3 +1,6 @@
+import { InfoTooltip } from "./InfoTooltip";
+import { useAppContext } from "../AppContext";
+import { generateChartDataByPeriod, aggregateMetrics } from "../utils/chartEngine";
 import React, { useState, useMemo } from "react";
 import {
   LineChart,
@@ -47,12 +50,33 @@ const generateData = (comp: ComparisonType, dim: DimensionType) => {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4"];
 
 export const ProductGrowthAnalysisChart: React.FC = () => {
+  const { dateRange, period: contextPeriod } = useAppContext();
   const [metric, setMetric] = useState<MetricType>("revenue");
   const [comparison, setComparison] = useState<ComparisonType>("mom");
   const [dimension, setDimension] = useState<DimensionType>("category");
   const [selectedEntity, setSelectedEntity] = useState<string>("all");
 
-  const data = useMemo(() => generateData(comparison, dimension), [comparison, dimension]);
+  const data = useMemo(() => {
+    return generateChartDataByPeriod(
+      dateRange.start, 
+      dateRange.end, 
+      contextPeriod, 
+      (s, e) => {
+        const agg = aggregateMetrics(s, e);
+        const row: any = {};
+        if (dimension === "category") {
+          categories.forEach(c => row[c] = (agg.gmv / 1000) * (Math.random() * 4 - 2));
+        } else if (dimension === "product_group") {
+          productGroups.forEach(g => row[g] = (agg.gmv / 1000) * (Math.random() * 5 - 2.5));
+        } else {
+          row["Essilor"] = (agg.lenses / 1000) * 2;
+          row["Chemi"] = (agg.lenses / 1000) * 1.5;
+          row["HMK"] = (agg.frames / 1000) * 3;
+        }
+        return row;
+      }
+    ).map(d => ({ ...d, period: d.label }));
+  }, [dimension, dateRange, contextPeriod]);
 
   const dataKeys = useMemo(() => {
     let allEntities: string[] = [];
@@ -92,57 +116,25 @@ export const ProductGrowthAnalysisChart: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col overflow-hidden mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col mb-6">
       <div className="p-5 border-b border-slate-100 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <PackageSearch className="w-5 h-5 text-indigo-600" />
-            Phân tích Tăng trưởng Sản phẩm
-          </h2>
-          <p className="text-sm text-slate-500">
-            Theo dõi tỷ lệ tăng trưởng theo ngành hàng, nhóm SP, thương hiệu
-          </p>
+          <InfoTooltip
+            label={
+              <span className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <PackageSearch className="w-5 h-5 text-indigo-600" />
+                Phân tích Tăng trưởng Sản phẩm
+              </span>
+            }
+            labelClassName=""
+            description="Phân tích mức độ tiêu thụ của các dòng sản phẩm, thương hiệu để nhận diện mặt hàng bán chạy (Trending) và mặt hàng tồn đọng."
+            formula="Tăng trưởng (%) = ((Kỳ hiện tại - Kỳ trước) / Kỳ trước) * 100"
+            tooltipWidth="w-72"
+          />
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex bg-slate-100 p-1 rounded-md">
-            {[
-              { id: "revenue", label: "Doanh thu" },
-              { id: "orders", label: "Doanh số" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setMetric(tab.id as MetricType)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  metric === tab.id
-                    ? "bg-white shadow-sm text-slate-800"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex bg-slate-100 p-1 rounded-md">
-            {[
-              { id: "wow", label: "WoW" },
-              { id: "mom", label: "MoM" },
-              { id: "yoy", label: "YoY" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setComparison(tab.id as ComparisonType)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  comparison === tab.id
-                    ? "bg-white shadow-sm text-slate-800"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          
 
           <div className="flex bg-slate-100 p-1 rounded-md">
             {[
