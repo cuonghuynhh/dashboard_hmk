@@ -28,6 +28,7 @@ Hệ thống hiển thị các menu và trang dựa trên quyền hạn của ng
 - **Biểu đồ Xu hướng Lũy kế GMV & Net Revenue (GMV & Net Revenue Trend):**
   - *Loại biểu đồ:* Biểu đồ kết hợp (Cột và Đường).
   - *Dữ liệu:* So sánh trực quan khoảng cách giữa Sức bán (GMV) và Dòng tiền Thực thu (Net Revenue) theo từng khoảng thời gian.
+  - *Cải tiến UX:* Trục Y tự động co giãn theo giá trị min-max của các cột để làm nổi bật mức độ biến động; hiển thị số % chênh lệch trực tiếp trên đỉnh mỗi cột (không cần hover).
 
 - **Phân tích Thác nước Doanh thu (Revenue Waterfall Chart):**
   - *Loại biểu đồ:* Biểu đồ Thác nước (Waterfall Chart).
@@ -36,10 +37,14 @@ Hệ thống hiển thị các menu và trang dựa trên quyền hạn của ng
 - **Biểu đồ Cấu trúc Sức bán (GMV Breakdown Chart):**
   - *Loại biểu đồ:* Biểu đồ cột chồng (Stacked Bar Chart).
   - *Dữ liệu:* Thể hiện tỷ trọng đóng góp của 2 luồng doanh thu chính: Đơn đặt hàng (Pre-order) và Đơn mua thẳng (Direct Order).
+  - *Cải tiến UX:* Trục Y tự động co giãn theo trần giá trị thực tế của các cột (+18% đệm thông minh); hiển thị số % tỷ trọng trực tiếp trên từng khúc cột (Đơn đặt trước & Đơn lắp sẵn) không cần hover.
 
 - **Biểu đồ Xu hướng & Mục tiêu YTD (Revenue Trend & Target):**
   - *Loại biểu đồ:* Biểu đồ kết hợp (Composed Chart - Cột và Đường).
   - *Dữ liệu:* So sánh Doanh thu thực tế lũy kế (Actual YTD) với Mục tiêu lũy kế (Target YTD) qua các mốc thời gian.
+  - *Các chế độ xem (View Modes):* 
+    - **Xem cùng lúc cả 3 (Executive Multi-Card Grid):** Hiển thị song song 3 card đồ thị độc lập về thang đo (GMV - Doanh thu thuần - Công nợ) nhưng được đồng bộ trục thời gian (`syncId`) và tooltip hover theo Master Filter; kèm thanh chỉ số tổng hợp tỷ lệ chuyển đổi dòng tiền (GMV 100% → Net Rev % → Nợ treo % an toàn).
+    - **Xem đơn lẻ (Expanded View):** Cho phép phóng to tập trung vào từng chỉ số: *Sức bán GMV*, *Doanh thu thuần* hoặc *Công nợ*.
   - *Tính năng đi kèm:* Bộ lọc độc lập (Local Filter) cho phép tuỳ biến dữ liệu khu vực/chi nhánh không ảnh hưởng đến Filter chung.
 
 - **Bảng Xếp Hạng Hiệu suất (Top Performance Table):**
@@ -270,6 +275,12 @@ Dưới đây là đặc tả logic tính toán cho các chỉ số tài chính 
 - **Ý nghĩa:** Số tiền trung bình mà một khách hàng chi trả trên mỗi hóa đơn.
 - **Công thức (Logic):** `Doanh thu thuần / Tổng số đơn hàng (Volume)`.
 - **Format UI:** Triệu/Đơn. Bóc tách Sub-info tương tự GMV (Trước VAT và VAT).
+
+**9. NỢ TREO**
+- **Ý nghĩa:** Tổng công nợ tạm thời chưa thu về két (chủ yếu từ đơn đặt cọc cắt kính chờ lấy hoặc khách hẹn chuyển khoản sau).
+- **Công thức (Logic):** Tổng dư nợ dương trên sổ cái khách hàng phát sinh trong kỳ.
+- **Format UI:** Triệu VNĐ. Sub-info: Tỷ lệ % so với GMV.
+- **Màu sắc chỉ báo:** Tăng hiển thị Đỏ (báo động), Giảm hiển thị Xanh (tích cực).
 
 ### 4.5. Logic So sánh Lũy kế (Trend / Growth Rate)
 

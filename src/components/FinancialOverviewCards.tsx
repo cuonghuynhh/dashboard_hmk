@@ -11,7 +11,8 @@ import {
   ArrowDown,
   BarChart3,
   Receipt,
-  ShoppingBasket
+  ShoppingBasket,
+  Clock
 } from 'lucide-react';
 import { InfoTooltip } from './InfoTooltip';
 import { ResponsiveContainer, LineChart, Line, YAxis } from 'recharts';
@@ -155,7 +156,7 @@ export const FinancialOverviewCards = () => {
 
     // Generate real sparklines for the selected period
     const sparklines = {
-      gmv: [] as any[], newCustomers: [] as any[], gross: [] as any[], adjust: [] as any[], net: [] as any[], margin: [] as any[], volume: [] as any[], aov: [] as any[]
+      gmv: [] as any[], newCustomers: [] as any[], gross: [] as any[], adjust: [] as any[], net: [] as any[], margin: [] as any[], volume: [] as any[], aov: [] as any[], debt: [] as any[]
     };
     
     let current = new Date(start);
@@ -169,6 +170,7 @@ export const FinancialOverviewCards = () => {
       sparklines.margin.push({ value: daily.grossMargin * 100 });
       sparklines.volume.push({ value: daily.orders });
       sparklines.aov.push({ value: daily.netRev / daily.orders });
+      sparklines.debt.push({ value: daily.debt });
       current.setDate(current.getDate() + 1);
     }
     
@@ -190,6 +192,7 @@ export const FinancialOverviewCards = () => {
       gross: { val: format(agg.gmv * 1.05), trend: calcGrowth(agg.gmv * 1.05, prevAgg.gmv * 1.05), data: sparklines.gross },
       adjust: { val: "-" + Math.round(agg.refunds).toString(), trend: { val: "15,4", isPos: false }, data: sparklines.adjust },
       net: { val: format(agg.netRev), trend: calcGrowth(agg.netRev, prevAgg.netRev), data: sparklines.net },
+      debt: { val: Math.round(agg.debt).toLocaleString('vi-VN'), trend: calcGrowth(agg.debt, prevAgg.debt), data: sparklines.debt, subInfo: `Chiếm ${((agg.debt / agg.gmv) * 100).toFixed(1).replace('.', ',')}% GMV` },
       margin: { val: (agg.avgGrossMargin * 100).toFixed(1).replace('.', ','), trend: calcGrowth(agg.avgGrossMargin, prevAgg.avgGrossMargin), data: sparklines.margin },
       volume: { val: agg.orders.toLocaleString('vi-VN'), trend: calcGrowth(agg.orders, prevAgg.orders), data: sparklines.volume },
       aov: { val: aovTotalMillion.toFixed(1).replace('.', ','), trend: calcGrowth(agg.netRev/agg.orders, prevAgg.netRev/prevAgg.orders), data: sparklines.aov, subInfo: aovSubInfo },
@@ -285,10 +288,27 @@ export const FinancialOverviewCards = () => {
       />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <FinancialCard
+          title="NỢ TREO"
+          tooltipPosition="left"
+          tooltipDesc="Tổng công nợ tạm thời chưa thu về két (chủ yếu từ đơn đặt cọc cắt kính chờ lấy hoặc khách hẹn chuyển khoản sau)."
+          tooltipFormula="Tổng dư nợ dương trên sổ cái khách hàng"
+          value={metrics.debt.val} footerCurr={metrics.dates.curr} footerPrev={metrics.dates.prev}
+          unit="Tr VNĐ"
+          subInfo={metrics.debt.subInfo}
+          trendValue={metrics.debt.trend.val + "%"}
+          isPositive={!metrics.debt.trend.isPos}
+          icon={<Clock className="w-4 h-4" />}
+          iconBgColor="bg-amber-50"
+          iconColor="text-amber-600"
+          sparklineData={metrics.debt.data}
+          sparklineColor="#d97706"
+        />
+        
         <FinancialCard
           title="BIÊN LỢI NHUẬN GỘP"
-          tooltipPosition="left"
+          tooltipPosition="center"
           tooltipDesc="Tỷ lệ lợi nhuận giữ lại được sau khi trừ đi chi phí cấu thành sản phẩm (Giá vốn hàng bán). Đo lường hiệu quả sinh lời cốt lõi của việc bán kính."
           tooltipFormula="((Doanh thu thuần - Giá vốn) / Doanh thu thuần) * 100"
           value={metrics.margin.val} footerCurr={metrics.dates.curr} footerPrev={metrics.dates.prev}

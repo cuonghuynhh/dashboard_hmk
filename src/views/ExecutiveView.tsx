@@ -29,6 +29,7 @@ import { GMVNetRevenueChart } from "../components/GMVNetRevenueChart";
 import { GMVBreakdownChart } from "../components/GMVBreakdownChart";
 import { RevenueTrendChart } from "../components/RevenueTrendChart";
 import { RevenueWaterfallChart } from "../components/RevenueWaterfallChart";
+import { OrderEfficiencyMetricsChart } from "../components/OrderEfficiencyMetricsChart";
 import { TopPerformanceTable } from "../components/TopPerformanceTable";
 import { BranchRevenueComparison } from "../components/BranchRevenueComparison";
 import { LocalFilterUI } from "../components/LocalFilterUI";
@@ -302,9 +303,10 @@ export const ExecutiveView: React.FC = () => {
         <RevenueWaterfallChart />
       </div>
 
+      <OrderEfficiencyMetricsChart />
+
       <div className="grid grid-cols-1 gap-6">
         <GMVBreakdownChart />
-        
       </div>
 
       <RevenueTrendChart />

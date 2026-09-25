@@ -18,7 +18,7 @@ export const TopPerformanceTable: React.FC = () => {
   const { localRegion, setLocalRegion, localBranch, setLocalBranch } = useLocalFilter();
   const [dimension, setDimension] = useState<DimensionMode>("branch");
 
-  const { tableData, filteredSystemGmv } = useMemo(() => {
+  const { tableData, filteredSystemGmv, totalFilteredNetRev } = useMemo(() => {
     // When evaluating Top branches/regions, we evaluate against the base system within the selected localRegion/localBranch context.
     const agg = aggregateMetrics(new Date(dateRange.start), new Date(dateRange.end), localRegion, localBranch);
     
@@ -26,18 +26,24 @@ export const TopPerformanceTable: React.FC = () => {
     // However, we want to show the breakdown of this subset.
     const sysGmv = agg.gmv;
 
-    let rows: any[] = [];
+    interface RawItem {
+      name: string;
+      gmv: number;
+      netRev: number;
+      dropRatio: number;
+    }
+
+    let initialRows: RawItem[] = [];
     const effectiveDimension = localRegion !== "Tất cả Khu vực" ? "branch" : dimension;
 
     if (effectiveDimension === "branch") {
-      rows = Object.keys(agg.branches).map(branchName => {
+      initialRows = Object.keys(agg.branches).map(branchName => {
         const gmv = agg.branches[branchName];
         const dropRate = getDropRate(branchName);
         const netRev = gmv * (1 - dropRate);
         const dropRatio = gmv > 0 ? (gmv - netRev) / gmv : 0;
-        const weight = sysGmv > 0 ? (gmv / sysGmv) * 100 : 0;
         
-        return { name: branchName, gmv, netRev, dropRatio, weight };
+        return { name: branchName, gmv, netRev, dropRatio };
       });
     } else {
       const regionData: Record<string, { gmv: number, netRev: number }> = {};
@@ -54,19 +60,30 @@ export const TopPerformanceTable: React.FC = () => {
         regionData[region].netRev += netRev;
       });
 
-      rows = Object.keys(regionData).map(region => {
+      initialRows = Object.keys(regionData).map(region => {
         const gmv = regionData[region].gmv;
         const netRev = regionData[region].netRev;
         const dropRatio = gmv > 0 ? (gmv - netRev) / gmv : 0;
-        const weight = sysGmv > 0 ? (gmv / sysGmv) * 100 : 0;
 
-        return { name: region, gmv, netRev, dropRatio, weight };
+        return { name: region, gmv, netRev, dropRatio };
       });
     }
 
+    const totalNetRev = initialRows.reduce((acc, curr) => acc + curr.netRev, 0);
+
+    const rows = initialRows.map(item => ({
+      ...item,
+      gmvWeight: sysGmv > 0 ? (item.gmv / sysGmv) * 100 : 0,
+      netRevWeight: totalNetRev > 0 ? (item.netRev / totalNetRev) * 100 : 0,
+    }));
+
     rows.sort((a, b) => b.gmv - a.gmv);
 
-    return { tableData: rows, filteredSystemGmv: sysGmv };
+    return { 
+      tableData: rows, 
+      filteredSystemGmv: sysGmv,
+      totalFilteredNetRev: totalNetRev 
+    };
   }, [dateRange, localRegion, localBranch, dimension]);
 
   return (
@@ -78,7 +95,7 @@ export const TopPerformanceTable: React.FC = () => {
             Bảng xếp hạng Hiệu suất
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Đánh giá sức bán, thực thu và tỷ lệ rớt đơn
+            Đánh giá sức bán, doanh thu và tỷ lệ trả hàng
           </p>
         </div>
         
@@ -113,10 +130,11 @@ export const TopPerformanceTable: React.FC = () => {
             <tr>
               <th className="px-6 py-4 w-12 text-center">#</th>
               <th className="px-6 py-4 min-w-[180px]">{localRegion === "Tất cả Khu vực" && dimension === 'region' ? 'Khu vực' : 'Tên Chi nhánh'}</th>
-              <th className="px-6 py-4 text-right">Tổng GMV</th>
-              <th className="px-6 py-4 text-right">Thực thu</th>
-              <th className="px-6 py-4 text-right">Tỷ lệ rớt</th>
-              <th className="px-6 py-4 text-right w-[150px]">Tỷ trọng đóng góp</th>
+              <th className="px-6 py-4 text-right">GMV</th>
+              <th className="px-6 py-4 text-right">Tỷ trọng GMV</th>
+              <th className="px-6 py-4 text-right">Doanh thu</th>
+              <th className="px-6 py-4 text-right">Tỷ trọng Doanh thu</th>
+              <th className="px-6 py-4 text-right">Tỷ lệ trả hàng</th>
             </tr>
           </thead>
           <tbody>
@@ -132,16 +150,19 @@ export const TopPerformanceTable: React.FC = () => {
                 <td className="px-6 py-4 text-right font-semibold text-slate-700">
                   {Math.round(row.gmv).toLocaleString('vi-VN')} Tr
                 </td>
+                <td className="px-6 py-4 text-right text-indigo-600 font-semibold">
+                  {row.gmvWeight.toFixed(1).replace('.', ',')}%
+                </td>
                 <td className="px-6 py-4 text-right font-medium text-emerald-600">
                   {Math.round(row.netRev).toLocaleString('vi-VN')} Tr
+                </td>
+                <td className="px-6 py-4 text-right text-emerald-600 font-semibold">
+                  {row.netRevWeight.toFixed(1).replace('.', ',')}%
                 </td>
                 <td className="px-6 py-4 text-right">
                   <span className={`font-medium px-2 py-1 rounded ${row.dropRatio > 0.12 ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-600'}`}>
                     {(row.dropRatio * 100).toFixed(1).replace('.', ',')}%
                   </span>
-                </td>
-                <td className="px-6 py-4 text-right text-indigo-600 font-semibold">
-                  {row.weight.toFixed(1).replace('.', ',')}%
                 </td>
               </tr>
             ))}
@@ -155,15 +176,16 @@ export const TopPerformanceTable: React.FC = () => {
                 <td className="px-6 py-4 text-right text-slate-800">
                   {Math.round(filteredSystemGmv).toLocaleString('vi-VN')} Tr
                 </td>
+                <td className="px-6 py-4 text-right text-indigo-600">100%</td>
                 <td className="px-6 py-4 text-right text-emerald-600">
-                  {Math.round(tableData.reduce((acc, curr) => acc + curr.netRev, 0)).toLocaleString('vi-VN')} Tr
+                  {Math.round(totalFilteredNetRev).toLocaleString('vi-VN')} Tr
                 </td>
+                <td className="px-6 py-4 text-right text-emerald-600">100%</td>
                 <td className="px-6 py-4 text-right text-slate-600">
                   {filteredSystemGmv > 0 
-                    ? (((filteredSystemGmv - tableData.reduce((acc, curr) => acc + curr.netRev, 0)) / filteredSystemGmv) * 100).toFixed(1).replace('.', ',') + '%'
+                    ? (((filteredSystemGmv - totalFilteredNetRev) / filteredSystemGmv) * 100).toFixed(1).replace('.', ',') + '%'
                     : '0%'}
                 </td>
-                <td className="px-6 py-4 text-right text-indigo-600">100%</td>
               </tr>
             )}
           </tbody>

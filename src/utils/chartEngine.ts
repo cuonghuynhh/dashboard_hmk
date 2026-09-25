@@ -74,6 +74,7 @@ export const getDailyMetrics = (date: Date, region: string = "Tất cả Khu v�
       gmv: filteredGmv,
       netRev: netRev * ratio,
       orders: Math.round(orders * ratio),
+      units: Math.round(Math.round(orders * ratio) * (2.15 + seededRandom(seed + 6) * 0.4)),
       frames: gmv * 0.4 * ratio,
       lenses: gmv * 0.45 * ratio,
       contactLenses: gmv * 0.1 * ratio,
@@ -83,6 +84,7 @@ export const getDailyMetrics = (date: Date, region: string = "Tất cả Khu v�
       upsale: gmv * 0.1 * ratio,
       directOrder: gmv * (0.35 + seededRandom(seed+4) * 0.05) * ratio,
       preOrder: gmv * (0.65 - seededRandom(seed+4) * 0.05) * ratio,
+      debt: gmv * (0.012 + seededRandom(seed+5) * 0.006) * ratio,
       grossMargin: 0.7 + (seededRandom(seed+3) * 0.05)
     };
 };
@@ -94,7 +96,7 @@ export const aggregateMetrics = (start: Date, end: Date, region: string = "Tất
   endDay.setHours(0,0,0,0);
 
   const total = {
-    gmv: 0, netRev: 0, orders: 0, frames: 0, lenses: 0, contactLenses: 0, accessories: 0, refunds: 0, upsale: 0, directOrder: 0, preOrder: 0,
+    gmv: 0, netRev: 0, orders: 0, units: 0, frames: 0, lenses: 0, contactLenses: 0, accessories: 0, refunds: 0, upsale: 0, directOrder: 0, preOrder: 0, debt: 0,
     branches: {} as Record<string, number>,
     days: 0,
     avgGrossMargin: 0
@@ -107,6 +109,7 @@ export const aggregateMetrics = (start: Date, end: Date, region: string = "Tất
     total.gmv += daily.gmv;
     total.netRev += daily.netRev;
     total.orders += daily.orders;
+    total.units += daily.units;
     total.frames += daily.frames;
     total.lenses += daily.lenses;
     total.contactLenses += daily.contactLenses;
@@ -115,6 +118,7 @@ export const aggregateMetrics = (start: Date, end: Date, region: string = "Tất
     total.upsale += daily.upsale;
     total.directOrder += daily.directOrder;
     total.preOrder += daily.preOrder;
+    total.debt += daily.debt;
     
     Object.keys(daily.branches).forEach(k => {
       total.branches[k] = (total.branches[k] || 0) + daily.branches[k];
