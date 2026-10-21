@@ -2,7 +2,7 @@
 
 | Thuộc tính | Giá trị |
 |---|---|
-| Phiên bản | **2.0 — Tài liệu chuẩn (baseline)** |
+| Phiên bản | **2.2 — Tài liệu chuẩn (baseline)**; toàn bộ quyết định nghiệp vụ đã được chốt |
 | Ngày | 16/10/2026 |
 | Chủ sở hữu | Product Manager |
 | Mục đích | **Gốc đối chiếu duy nhất** về công thức tính và tính năng UI, dùng để QC code dashboard do đội phát triển triển khai |
@@ -12,9 +12,11 @@
 **Lịch sử thay đổi**
 | Phiên bản | Ngày | Nội dung |
 |---|---|---|
+| **2.2** | 18/10/2026 | **Chốt toàn bộ quyết định** (QĐ-16 … QĐ-31). Thay đổi chính: ngày ghi nhận Đơn hàng = `SubmitAt` (thời điểm đơn được lập thật, không phải lúc mở nháp); 100% đơn xuất VAT; Doanh thu thực thu = Σ phiếu thu; MANAGER theo "Cửa hàng đang quản lý" (phân quyền Identity); Khu vực & Cụm cửa hàng lấy từ HRM (Khu vực → Cụm → Chi nhánh); Order Aging theo 2 chặng Đặt hàng / Hoàn thành đơn hàng; chiến dịch và phương thức thanh toán theo mã trên đơn; hoãn Lab |
 | 1.0 | 16/10/2026 | Hợp nhất 2 luồng phân tích (BA đọc code + DA kiểm UI của prototype) |
 | 1.1 | 16/10/2026 | Áp 15 quyết định nghiệp vụ QĐ-01…QĐ-15 |
-| **2.0** | 16/10/2026 | Chốt 9 điểm phát sinh và quy tắc hủy đơn đặt. **Tách tài liệu**: bản này chỉ mô tả hành vi chuẩn; đánh giá prototype chuyển sang `analysis/PROTOTYPE_GAP_REPORT.md`. Thêm mô hình dữ liệu nghiệp vụ & bảng sự kiện ghi nhận (mục 2), công thức dạng giả mã (mục 3), bộ dữ liệu kiểm thử chuẩn kèm kết quả kỳ vọng (mục 9), hướng dẫn và mẫu báo cáo QC (mục 11) |
+| **2.1** | 17/10/2026 | Áp **tạm** các phương án PM đề xuất sau QC code thật (QĐ-16 … QĐ-25, nhãn "tạm áp — chờ xác nhận"): giá trị đơn và VAT theo mô hình POS (VAT cộng thêm khi xuất hóa đơn); ngày tạo đơn = `CreateAt`; đơn đặt chuyển một phần; đổi hàng sau bán (E10); loại khách lẻ khỏi Khách hàng mới; giữ số liệu chi nhánh đã đóng; mã quyền theo vai trò; danh mục khu vực chung; KPI theo mục tiêu ngày theo loại ngày |
+| 2.0 | 16/10/2026 | Chốt 9 điểm phát sinh và quy tắc hủy đơn đặt. **Tách tài liệu**: bản này chỉ mô tả hành vi chuẩn; đánh giá prototype chuyển sang `analysis/PROTOTYPE_GAP_REPORT.md`. Thêm mô hình dữ liệu nghiệp vụ & bảng sự kiện ghi nhận (mục 2), công thức dạng giả mã (mục 3), bộ dữ liệu kiểm thử chuẩn kèm kết quả kỳ vọng (mục 9), hướng dẫn và mẫu báo cáo QC (mục 11) |
 
 ---
 
@@ -73,7 +75,8 @@ Dashboard BI nội bộ cho chuỗi bán lẻ kính mắt HMK:
 - KPI cá nhân (QĐ-08).
 - **[Hoãn]** Tỷ lệ chuyển đổi KTV, bảng hiệu suất KTV khúc xạ, độ chính xác đo khám, phễu chuyển đổi (báo giá), nguyên nhân trả hàng/hủy (QĐ-13).
 - Phân loại vòng đời sản phẩm (QĐ-14).
-- Công đoạn "Đo khám" trong Cảnh báo tồn đọng (hệ thống chưa có trạng thái này).
+- Công đoạn mài lắp / "Đo khám" trong Cảnh báo tồn đọng (POS chưa ghi công đoạn; Order Aging dùng 2 chặng Đặt hàng / Hoàn thành đơn hàng — QĐ-29).
+- **[Hoãn]** Bảng hiệu suất phòng Lab / KTV mài lắp (chưa có Lab — QĐ-31).
 - Thông báo (chuông), ứng dụng di động riêng.
 
 ### 1.4. Quy ước chung
@@ -97,7 +100,7 @@ Dashboard BI nội bộ cho chuỗi bán lẻ kính mắt HMK:
 | **Dòng hàng** | mã đơn, sản phẩm, số lượng, đơn giá, giảm giá dòng, giảm giá cấp đơn phân bổ, thuế suất VAT áp dụng | Thuế suất **chốt tại thời điểm tạo đơn** (QĐ-09) |
 | **Phí vận chuyển** | mã đơn, số tiền | Lưu tách khỏi dòng hàng; **không** vào GMV |
 | **Trả hàng** | mã, mã Đơn hàng gốc, dòng hàng trả, số lượng trả, ngày trả | |
-| **Phiếu thu / chi** | mã, mã đơn, loại (cọc, thanh toán, thu nợ, hoàn tiền, chuyển cọc), số tiền, phương thức, ngày | Dùng cho Doanh thu thực thu, Hình thức thanh toán |
+| **Phiếu thu / chi** | mã, mã đơn, loại chứng từ (phiếu thu / phiếu chi), số tiền, mã phương thức thanh toán, ngày | POS **chỉ có chứng từ phiếu thu**, không phân biệt cọc / thanh toán / thu nợ (QĐ-26). Chuyển cọc khi đổi hàng không tạo phiếu thu mới; hoàn tiền là phiếu chi |
 | **Sổ công nợ khách hàng** | khách hàng, mã đơn, số dư tại cuối mỗi ngày | Dùng cho Nợ treo |
 | **Sản phẩm** | mã, tên, ngành hàng, nhóm, thương hiệu, nhà cung cấp, thuộc tính (chiết suất, màu, SPH, CYL, loại tròng), lịch sử thuế suất | |
 | **Chi nhánh / Khu vực** | mã, tên, khu vực, kênh (cửa hàng / online), trạng thái hoạt động | Danh mục chủ duy nhất (BR-MD-01) |
@@ -147,20 +150,23 @@ Dashboard BI nội bộ cho chuỗi bán lẻ kính mắt HMK:
 | E5 | Đơn đặt **Kết thúc** không ra Đơn hàng | −Giá trị điều chỉnh (thành phần Đổi hàng), −Volume | Giá trị Đơn đặt | **Ngày bấm Kết thúc** | Của Đơn đặt |
 | E6 | Đơn đặt **Hủy** sau khi là Đơn tạm | −Giá trị điều chỉnh (thành phần Hủy đơn đặt), −Volume | Giá trị Đơn đặt | **Ngày hủy** | Của Đơn đặt |
 | E7 | Đơn hàng Hủy (chưa hoàn thành) | Không tác động | — | — | — |
-| E8 | Phiếu thu (cọc, thanh toán, thu nợ) | +Doanh thu thực thu | Số tiền thu cho hàng hóa (không gồm phí ship) | Ngày thu | Của đơn |
+| E8 | Phiếu thu | +Doanh thu thực thu | Số tiền phiếu thu (không gồm phí ship) | Ngày thu | Của đơn |
 | E9 | Chuyển cọc từ Đơn đặt sang Đơn hàng mới (đổi hàng) | Không phải tiền thu mới | — | — | — |
 
 **Quy tắc kèm theo**
 - **BR-EVT-01.** Giá trị Đơn hàng sinh từ Đơn đặt **luôn bằng** giá trị Đơn đặt — hệ thống nguồn chặn chênh lệch (đã siết luồng). Dashboard không có khoản Upsell/Downsell. Nếu dữ liệu xuất hiện chênh lệch, đó là **lỗi dữ liệu nguồn**: dashboard vẫn dùng giá trị Đơn đặt và đưa đơn vào danh sách cảnh báo chất lượng dữ liệu (P2).
 - **BR-EVT-02 — Số liệu quá khứ có thể tăng.** Đơn hàng tạo ngày D nhưng hoàn thành sau D (vd đơn online chờ giao) được cộng vào GMV **của ngày D** khi hoàn thành. Vì vậy GMV của các ngày gần đây có thể tăng khi dữ liệu cập nhật. Header luôn hiển thị "Dữ liệu tính đến HH:MM DD/MM/YYYY".
+- **BR-EVT-04 — Ngày tạo đơn (QĐ-17).** "Ngày tạo" của **Đơn hàng** và **Đơn đặt** là thời điểm đơn **được lập thật** trên POS: `SubmitAt`. Khi thu ngân bấm "tạo mới đơn", POS ghi ngay một bản nháp (`SALE_ORDER_DRAFT` / `PRE_ORDER_DRAFT`) và `CreateAt` là lúc mở nháp — **không dùng** `CreateAt`; nháp bị bỏ không bao giờ hoàn thành nên không vào GMV. Đơn bán tại quầy trả tiền mặt hoàn thành ngay, POS gán `SubmitAt` = thời điểm hoàn thành. Không dùng `IssueAt` (bị ghi đè bằng thời điểm hoàn thành). Mọi mốc quy đổi về UTC+7.
+- **BR-EVT-05 — Đơn đặt chuyển một phần (QĐ-18).** Một Đơn đặt có thể sinh nhiều Đơn hàng. GMV ghi **toàn bộ** giá trị Đơn đặt tại ngày tạo; mọi Đơn hàng sinh từ nó đều không cộng vào GMV và M02g. Khi Kết thúc hoặc Hủy, khoản trừ (E5, E6) chỉ bằng **phần chưa chuyển** thành Đơn hàng còn hiệu lực. M02 chỉ trừ 1 khi Đơn đặt chưa chuyển phần nào.
+- **BR-EVT-06 — Đổi hàng sau bán (QĐ-19).** Khi khách đổi hàng đã mua (POS tạo phiếu trả kèm đơn đổi), phiếu trả là sự kiện **E4 Trả hàng**, đơn đổi là sự kiện **E2** (Đơn hàng mới tính GMV bình thường) — gọi chung là **E10**.
 - **BR-EVT-03 — Điều chỉnh có thể rơi vào kỳ khác.** Trả hàng, Kết thúc, Hủy ghi nhận tại ngày phát sinh, nên có thể làm giảm Doanh thu thuần của một kỳ khác kỳ ghi GMV. Doanh thu thuần của một kỳ hoặc một phạm vi **có thể âm**; hiển thị đúng giá trị âm, không ép về 0.
 
 ### 2.4. Giá trị đơn và dòng hàng (BR-VAL)
-- **BR-VAL-01 — Giá trị dòng** = số lượng × đơn giá − giảm giá dòng − giảm giá cấp đơn phân bổ. Giá **đã gồm VAT**, là giá khách cam kết trả.
+- **BR-VAL-01 — Giá trị dòng** = số lượng × đơn giá − giảm giá dòng − giảm giá cấp đơn phân bổ **+ VAT của dòng**, là số tiền khách cam kết trả cho hàng hóa. *(QĐ-16: POS lưu giá chưa VAT và cộng VAT khi xuất hóa đơn; **100% đơn đều xuất VAT**.)*
 - **BR-VAL-02 — Phân bổ giảm giá cấp đơn** xuống các dòng **theo tỷ lệ** giá trị dòng trước giảm giá cấp đơn. Phần lẻ do làm tròn dồn vào dòng có giá trị lớn nhất.
 - **BR-VAL-03 — Giá trị đơn** = Σ giá trị dòng. **Không** gồm phí vận chuyển (lưu dòng riêng).
 - **BR-VAL-04 — Giá trị trả hàng** = Σ (số lượng trả × giá trị một đơn vị của dòng gốc theo BR-VAL-01), gồm VAT, không phí ship.
-- **BR-VAL-05 — VAT của dòng** = giá trị dòng × t / (1 + t), với t là thuế suất của sản phẩm **tại thời điểm tạo đơn** (QĐ-09). Hàng trả dùng thuế suất của dòng gốc.
+- **BR-VAL-05 — VAT của dòng** = số VAT POS đã tính cho dòng (`VatAmount`) theo thuế suất của sản phẩm **tại thời điểm tạo đơn** (QĐ-09). Hàng trả dùng thuế suất của dòng gốc.
 
 ### 2.5. Quy tắc gán chiều phân tích
 | Chiều | Gán theo |
@@ -259,11 +265,12 @@ M02(K, P)  = M02g(K, P)
 ```
 M03(K, P) = COUNT DISTINCT kh  với  MIN(ngày tạo các đơn ghi nhận GMV của kh trên toàn hệ thống) ∈ K
                                 và  đơn đầu tiên đó ∈ P
+                                và  kh không phải khách lẻ không định danh (KHACHLE)   // QĐ-20
 ```
 
 **M04 — Doanh thu (thực thu)**
 ```
-M04(K, P) = Σ phieu_thu.so_tien  với loai ∈ {cọc, thanh toán, thu nợ}, ngay ∈ K, đơn ∈ P
+M04(K, P) = Σ phieu_thu.so_tien  với ngay ∈ K, đơn ∈ P        // mọi phiếu thu (QĐ-26)
             (không gồm phí vận chuyển; không trừ hoàn tiền; không tính phiếu "chuyển cọc")
 ```
 - M04 có thể lớn hơn M01 trong một kỳ (thu tiền của đơn kỳ trước) — hợp lệ.
@@ -360,7 +367,8 @@ M18 = COUNT DISTINCT kh (có đơn ghi nhận GMV trong K  VÀ  có đơn ghi nh
 ### 4.2. Mục tiêu (BR-TGT)
 - **BR-TGT-01 — Nguồn duy nhất.** Mọi mục tiêu trên dashboard lấy từ KPI **"Đang áp dụng"** ở module Quản lý KPI. KPI chỉ có cấp Công ty / Khu vực / Chi nhánh (QĐ-08). Không có giá trị mục tiêu mặc định ngầm trong code.
 - **BR-TGT-02 — Theo phạm vi.** Mục tiêu của phạm vi = KPI của đúng phạm vi đó. Nếu không có, dùng tổng KPI các phạm vi con (chi nhánh → khu vực → công ty).
-- **BR-TGT-03 — Phân bổ theo ngày.** Khi khoảng lọc không trùng chu kỳ KPI: mục tiêu = Σ (mục tiêu chu kỳ / số ngày chu kỳ) × số ngày giao nhau. Đường tiến độ chuẩn tích lũy theo **số ngày thực** của từng bucket.
+- **BR-TGT-03 — Phân bổ theo ngày.** Mục tiêu của một khoảng ngày = **Σ mục tiêu từng ngày**. KPI chi nhánh khai báo theo tháng bằng **mục tiêu ngày theo loại ngày** — Trong tuần (T2–T6) · Cuối tuần (T7, CN) · Ngày lễ (QĐ-24, theo cấu trúc thật trong `data-store-kpi.md`). KPI chỉ khai báo tổng chu kỳ thì chia đều theo ngày. Đường tiến độ chuẩn tích lũy theo mục tiêu từng ngày của bucket.
+- **BR-TGT-07 — Mục tiêu là GMV (QĐ-25).** Mục tiêu doanh số trong KPI (kể cả dữ liệu `data-store-kpi.md`) là mục tiêu **GMV**; % đạt = GMV / mục tiêu.
 - **BR-TGT-04 — Chiến dịch ghi đè.** Trong các ngày của KPI Chiến dịch, mục tiêu ngày lấy từ KPI Chiến dịch. Các ngày còn lại của tháng chia đều phần mục tiêu tháng còn lại (QĐ-08).
 - **BR-TGT-05 — Không có KPI** → hiển thị "Chưa thiết lập mục tiêu", ẩn % đạt và đường kế hoạch.
 - **BR-TGT-06 — Nhãn lũy kế.** Chỉ gọi "YTD / Lũy kế năm" khi tính từ 01/01; ngược lại gọi "Lũy kế trong kỳ".
@@ -385,7 +393,8 @@ M18 = COUNT DISTINCT kh (có đơn ghi nhận GMV trong K  VÀ  có đơn ghi nh
 - **BR-FMT-05 — Thuật ngữ:** "Tỷ lệ" (không "Tỉ lệ"); "Doanh thu thuần"; "Đơn lắp sẵn" cho Đơn hàng không qua đơn đặt; "Đơn đặt trước" cho Đơn đặt; ngày dạng `DD/MM/YYYY`.
 
 ### 4.4. Dữ liệu chủ & tính xác định (BR-MD, BR-DATA)
-- **BR-MD-01.** Một danh mục khu vực / chi nhánh duy nhất từ hệ thống nguồn, theo cơ cấu quản lý thực tế (QĐ-04), dùng cho mọi bộ lọc, widget, KPI và import.
+- **BR-MD-01 — Danh mục khu vực từ HRM (QĐ-28).** Khu vực và Cụm cửa hàng lấy từ **HRM — Thiết lập chấm công → Khu vực & Cụm cửa hàng** (có CRUD ở đó): **Khu vực** (`StoreCluster`) → **Cụm cửa hàng** (`BuddyStoreGroup`) → **Chi nhánh** (`BuddyStoreGroupSite`). Dashboard đồng bộ danh mục này (không tự tạo, không seed từ `data-store-kpi.md`), dùng cho mọi bộ lọc, widget, KPI và import. Chi nhánh chưa thuộc cụm nào gom vào nhóm "Chưa phân khu vực".
+- **BR-MD-04 — Chi nhánh đã đóng (QĐ-21).** Số liệu lịch sử của chi nhánh ngừng hoạt động vẫn tính vào tổng khu vực và toàn hệ thống; bộ chọn chi nhánh hiển thị chúng trong nhóm "Đã đóng".
 - **BR-MD-02.** Phân biệt kênh cửa hàng và kênh online. Traffic, Tỷ lệ chuyển đổi cửa hàng và Time Peak chỉ áp dụng kênh cửa hàng.
 - **BR-MD-03.** Danh mục ngành hàng chuẩn: Gọng kính · Tròng kính · Kính mát · Kính áp tròng · Phụ kiện & Vật tư. Một tên duy nhất cho mỗi ngành ở mọi widget.
 - **BR-DATA-01.** Không sinh số ngẫu nhiên hoặc số giả lập ở bất kỳ widget nào (INV-12).
@@ -405,7 +414,7 @@ M18 = COUNT DISTINCT kh (có đơn ghi nhận GMV trong K  VÀ  có đơn ghi nh
 | Xuất dữ liệu từ modal [P2] | ✔ | ✔ (trong phạm vi) | ✘ |
 | Bộ chọn Khu vực/Chi nhánh | ✔ | Chỉ cửa hàng được gán (nếu > 1) | ✘ (chip "PIC: <tên>") |
 
-- **BR-ROLE-01.** Vai trò và phạm vi lấy từ tài khoản đăng nhập. Người dùng **không** tự chọn vai trò.
+- **BR-ROLE-01.** Vai trò và phạm vi lấy từ tài khoản đăng nhập. Người dùng **không** tự chọn vai trò. Mã quyền (QĐ-22): `dashboard-v2.bod`, `dashboard-v2.manager`, `dashboard-v2.staff`, `dashboard-v2.gmv.read`, `dashboard-v2.kpi.write`, `dashboard-v2.traffic.write`. **Cửa hàng được gán của MANAGER = "Cửa hàng đang quản lý"** trong hồ sơ nhân viên, tức các chi nhánh tài khoản có vai trò trong Identity (`AccountSite` của app, bỏ vai trò `NOAUTHORIZED` và phạm vi trống) (QĐ-27). Tài khoản không có quyền GMV nhận các trường GMV là `null` kèm cờ `gmvHidden` (trang vẫn dùng được).
 - **BR-ROLE-02.** Phạm vi dữ liệu áp **ở tầng API/dữ liệu** (row-level security), không chỉ ẩn ở giao diện.
 - **BR-ROLE-03.** Vai trò không có quyền với tab đang mở → chuyển về tab đầu tiên được phép.
 - **BR-ROLE-04.** Mọi lối vào cùng một chức năng áp cùng một quy tắc quyền.
@@ -426,19 +435,19 @@ M18 = COUNT DISTINCT kh (có đơn ghi nhận GMV trong K  VÀ  có đơn ghi nh
 |---|---|
 | Chu kỳ | Theo Ngày / Tuần / Tháng / Quý / Năm — mặc định **Tuần** |
 | Từ ngày – Đến ngày | Mặc định **từ ngày 1 của tháng hiện tại đến hôm qua** (QĐ-07). Nếu hôm nay là ngày 1 thì dùng cả tháng trước |
-| Khu vực → Chi nhánh | Cascade theo danh mục chủ |
+| Khu vực → Cụm cửa hàng → Chi nhánh | Cascade theo danh mục HRM (BR-MD-01) |
 | Bộ lọc đa chiều | FR-FLT-03 |
 | Đồng bộ | Tải lại dữ liệu từ nguồn, cập nhật "Dữ liệu tính đến" |
 
-- **BR-FLT-01 — Cascade.** Đổi Khu vực → danh sách Chi nhánh chỉ còn chi nhánh của khu vực đó, Chi nhánh về "Tất cả". Chọn Chi nhánh khi Khu vực = "Tất cả" → Khu vực tự đặt theo chi nhánh.
+- **BR-FLT-01 — Cascade 3 cấp.** Đổi Khu vực → danh sách Cụm và Chi nhánh chỉ còn phần thuộc khu vực đó; đổi Cụm → danh sách Chi nhánh chỉ còn chi nhánh của cụm. Cấp dưới về "Tất cả" khi cấp trên đổi. Chọn Chi nhánh khi cấp trên = "Tất cả" → Cụm và Khu vực tự đặt theo chi nhánh.
 - **BR-FLT-02 — Validate ngày.** Không cho Từ > Đến, không để trống, khoảng tối đa 3 năm. Vi phạm → báo lỗi tại ô, giữ nguyên số liệu của bộ lọc hợp lệ gần nhất.
 - **BR-FLT-03 — Phạm vi áp dụng** theo ma trận ở FR-FLT-05.
 - **BR-FLT-04 — Lưu trạng thái** bộ lọc trong URL để chia sẻ link và giữ khi tải lại trang [P2].
 
 ### FR-FLT-02 — Bộ lọc cục bộ (Local Filter)
 Áp cho 7 widget trang Tổng quan có bộ chọn Khu vực/Chi nhánh riêng (FR-EX-02 … FR-EX-07, FR-EX-09).
-- **BR-FLT-05.** Khởi tạo = giá trị toàn cục. Đổi toàn cục → **ghi đè** mọi bộ lọc cục bộ. Đổi cục bộ chỉ tác động widget đó.
-- **BR-FLT-06.** Khi bộ lọc cục bộ khác toàn cục, widget hiển thị nhãn "Đang lọc riêng: <phạm vi>".
+- **BR-FLT-05.** Khởi tạo = giá trị toàn cục. Đổi toàn cục → **ghi đè** mọi bộ lọc cục bộ. Đổi cục bộ chỉ tác động widget đó. Chu kỳ ("Chu kỳ") của từng thẻ biểu đồ cũng là bộ lọc cục bộ, dùng cùng quy tắc ghi đè: khởi tạo bằng chu kỳ toàn cục, đổi chu kỳ toàn cục thì ghi đè chu kỳ của mọi thẻ, đổi chu kỳ ở một thẻ chỉ tác động thẻ đó.
+- **BR-FLT-06.** Khi bộ lọc cục bộ khác toàn cục, widget hiển thị nhãn "Đang lọc riêng: <phạm vi>". Nhãn này bao gồm cả chu kỳ khi chu kỳ của thẻ khác toàn cục (ví dụ "Đang lọc riêng: Miền Bắc · Chu kỳ Quý"); thẻ hiển thị nút "↺ Theo bộ lọc chung" để đưa chu kỳ về giá trị toàn cục.
 - **BR-FLT-07.** Bộ lọc cục bộ chỉ được chọn trong phạm vi quyền.
 
 ### FR-FLT-03 — Bộ lọc đa chiều
@@ -605,8 +614,8 @@ Mỗi thẻ có: giá trị + đơn vị, phụ đề, % so kỳ trước (mũi 
 Thứ tự: Cảnh báo tồn đọng | Thời gian bán hàng tối ưu → Nhân khẩu học → Phân khúc hóa đơn | Hình thức thanh toán → Hiệu quả chiến dịch → Benchmark → Phát hiện bất thường → Tỷ lệ chuyển đổi | Tỷ lệ trả hàng & đổi hàng.
 
 #### FR-OP-01 — Cảnh báo tồn đọng (Order Aging)
-**Hiển thị:** thanh ngang chồng; hàng = công đoạn **Mài lắp (gia công)**, **Vận chuyển** (không có "Đo khám" — hệ thống chưa có trạng thái này); khúc = tuổi đơn **0–5 · 6–10 · 11–20 · > 20 ngày** (xanh → vàng → cam → đỏ); toggle Số lượng / Giá trị.
-**Quy tắc:** tuổi đơn = số ngày từ khi đơn vào công đoạn hiện tại tới cuối ngày "Đến ngày"; chỉ tính đơn chưa hoàn thành công đoạn; Giá trị = Σ giá trị đơn.
+**Hiển thị:** thanh ngang chồng; hàng = **2 chặng** (QĐ-29): **Đặt hàng** (Đơn đặt đã lập, chưa ra đủ Đơn hàng — tuổi tính từ `SubmitAt` của Đơn đặt) và **Hoàn thành đơn hàng** (Đơn hàng đã lập từ Đơn đặt nhưng chưa Hoàn thành — tuổi tính từ `SubmitAt` của Đơn hàng). POS chưa ghi công đoạn mài lắp nên không có chặng "Mài lắp", "Đo khám". Khúc = tuổi đơn **0–5 · 6–10 · 11–20 · > 20 ngày** (xanh → vàng → cam → đỏ); toggle Số lượng / Giá trị.
+**Quy tắc:** tuổi = số ngày từ mốc vào chặng tới cuối ngày "Đến ngày" (snapshot); chỉ tính đơn còn ở chặng đó tại thời điểm snapshot (bỏ đơn đã Hủy / Kết thúc); Giá trị = giá trị phần còn mở của đơn.
 - **AC-OP01-01** Then tooltip nêu công đoạn, nhóm tuổi, số đơn / giá trị; modal có đơn vị.
 - **AC-OP01-02** [P2] When click khúc đỏ, Then mở danh sách mã đơn tương ứng.
 
@@ -626,11 +635,11 @@ Thứ tự: Cảnh báo tồn đọng | Thời gian bán hàng tối ưu → Nh�
 - **AC-OP04-01** Then tổng = 100% và tổng số đơn = M02g.
 
 #### FR-OP-05 — Hình thức thanh toán
-**Hiển thị:** thanh 100% chồng ngang: Tiền mặt · Chuyển khoản · Thẻ (POS) · Ví điện tử · COD (online) · Trả góp (QĐ-06). Tỷ trọng theo **giá trị phiếu thu** trong kỳ (E8).
+**Hiển thị:** thanh 100% chồng ngang: Tiền mặt · Chuyển khoản · Thẻ (POS) · Ví điện tử · COD (online) · Trả góp (QĐ-06). Nhóm theo **mã phương thức thanh toán** trên phiếu thu (QĐ-30; bảng ánh xạ mã → nhóm cấu hình được, mã chưa ánh xạ vào "Khác"). Tỷ trọng theo **giá trị phiếu thu** trong kỳ (E8).
 - **AC-OP05-01** Then mọi khúc có tooltip "tên: x,x% · giá trị"; tổng giá trị = M04.
 
 #### FR-OP-06 — Hiệu quả chiến dịch
-**Hiển thị:** bảng Chiến dịch · GMV · DTT · Số đơn (M02g) · AOV; sắp GMV giảm dần.
+**Hiển thị:** bảng Chiến dịch · GMV · DTT · Số đơn (M02g) · AOV; sắp GMV giảm dần. Chiến dịch = **mã chiến dịch đi kèm đơn** khi đơn áp dụng CTKM / voucher (QĐ-30); đơn không áp dụng gom vào "Không có chiến dịch".
 - **AC-OP06-01** Then Σ GMV các chiến dịch + GMV đơn không có chiến dịch = M01.
 
 #### FR-OP-07 — Benchmarking hiệu suất (radar)
@@ -710,9 +719,8 @@ Quy tắc chung: nhân viên được gán theo **người bán trên đơn** (m
 #### FR-HR-03 — Hiệu suất KTV khúc xạ — [Hoãn]
 Không hiển thị trong bản 1: chưa có dữ liệu ca đo mắt và độ chính xác đo khám (QĐ-13).
 
-#### FR-HR-04 — Hiệu suất phòng Lab / KTV mài lắp
-**Hiển thị:** #, Kỹ thuật viên, Tỷ lệ hoàn thành đúng hạn (số lệnh xong ≤ hạn cam kết / tổng lệnh xong trong kỳ), Tỷ lệ hư hao (phôi hỏng / phôi dùng); sắp theo đúng hạn giảm dần; tô đỏ hư hao > ngưỡng cấu hình (mặc định 2%).
-- **AC-HR04-01** Given hư hao 1,5%, Then không tô đỏ; 2,5% → tô đỏ.
+#### FR-HR-04 — Hiệu suất phòng Lab / KTV mài lắp — [Hoãn]
+Không hiển thị trong bản 1: hiện chưa có Lab và chưa có dữ liệu lệnh gia công (QĐ-31). Định nghĩa giữ lại để triển khai sau: Tỷ lệ hoàn thành đúng hạn = số lệnh xong ≤ hạn cam kết / tổng lệnh xong; Tỷ lệ hư hao = phôi hỏng / phôi dùng.
 
 ### 7.5. Trang Quản lý KPI
 
@@ -722,7 +730,7 @@ Không hiển thị trong bản 1: chưa có dữ liệu ca đo mắt và độ 
 | Phạm vi | Công ty / Khu vực / Chi nhánh |
 | Đối tượng | Mã theo danh mục chủ; bắt buộc khi phạm vi ≠ Công ty |
 | Chu kỳ | Năm (chọn năm) / Quý / Tháng / Chiến dịch (ngày bắt đầu – kết thúc) |
-| Mục tiêu GMV (₫) | **Bắt buộc**, > 0 |
+| Mục tiêu GMV (₫) | **Bắt buộc**, > 0. Với KPI chi nhánh theo tháng: khai báo dạng **mục tiêu ngày theo loại ngày** — Trong tuần / Cuối tuần / Ngày lễ (QĐ-24); tổng tháng = Σ mục tiêu từng ngày |
 | Mục tiêu DTT (₫) | Tùy chọn, > 0 |
 | Tỷ lệ chuyển đổi (%), Độ hài lòng | Tùy chọn, 0–100 (hoặc theo thang nguồn) |
 | AOV (₫), Traffic | Tùy chọn, số nguyên > 0 |
@@ -781,7 +789,7 @@ Cột mẫu: Mã chi nhánh · Tên chi nhánh (tham khảo) · Ngày · Traffic
 - **AC-IMP01-05** When Hủy ở bước xem trước, Then không bản ghi nào thay đổi.
 
 #### FR-IMP-02 — Import mục tiêu hàng loạt (BOD)
-Cột mẫu: Phạm vi · Mã đối tượng (trống khi Công ty) · Loại chu kỳ · Kỳ (`YYYY`, `Qn/YYYY`, `MM/YYYY` hoặc tên chiến dịch) · Từ ngày, Đến ngày (bắt buộc với Chiến dịch) · Mục tiêu GMV (₫) · Mục tiêu DTT (₫) · Tỷ lệ chuyển đổi (%) · AOV (₫) · Traffic · Độ hài lòng.
+Cột mẫu: Phạm vi · Mã đối tượng (trống khi Công ty) · Loại chu kỳ · Kỳ (`YYYY`, `Qn/YYYY`, `MM/YYYY` hoặc tên chiến dịch) · Từ ngày, Đến ngày (bắt buộc với Chiến dịch) · Mục tiêu GMV (₫) **hoặc** Mục tiêu GMV ngày Trong tuần / Cuối tuần / Lễ (₫, cho KPI chi nhánh theo tháng — QĐ-24; định dạng của `data-store-kpi.md` nhập được trực tiếp) · Mục tiêu DTT (₫) · Tỷ lệ chuyển đổi (%) · AOV (₫) · Traffic · Độ hài lòng.
 - Kiểm tra như wizard (AC-KPI04-03); phạm vi "Cá nhân" → lỗi; trùng (Đối tượng, chu kỳ giao nhau) trong file → lỗi.
 - Xung đột với KPI Đang áp dụng: bước xem trước liệt kê từng xung đột (cũ → mới); chọn **một chính sách cho cả file** theo BR-KPI-02.
 - Trạng thái sau nhập: "Áp dụng ngay" hoặc "Lưu bản nháp" (mặc định) cho cả file.
@@ -980,6 +988,26 @@ Trong CN-A tháng 9: NV1 hạng 1/2, NV2 hạng 2/2. Điều chỉnh tháng 10 g
 | QĐ-14 | Không phân loại vòng đời sản phẩm | FR-PR-01 |
 | QĐ-15 | SS = 1,65 × σ × √LT; ROP = nhu cầu TB × LT + SS | FR-PR-06 |
 
+**Quyết định chốt sau khi QC code thật (chốt 18/10/2026; câu hỏi gốc ở `docs/qc/QC_TONG_HOP.md` §3)**
+| Mã | Nội dung | Câu hỏi gốc | Áp vào |
+|---|---|---|---|
+| QĐ-16 | Giá trị đơn = tiền khách cam kết trả cho hàng hóa sau giảm giá, cộng VAT, không gồm phí ship; VAT = `VatAmount` của dòng; **100% đơn xuất VAT** | A1 | BR-VAL-01, BR-VAL-05 |
+| QĐ-17 | Ngày tạo đơn = **`SubmitAt`** (thời điểm đơn được lập thật; không dùng `CreateAt` của bản nháp) | A2 | BR-EVT-04 |
+| QĐ-18 | Đơn đặt chuyển một phần: GMV toàn bộ tại ngày tạo; Kết thúc/Hủy trừ phần chưa chuyển | A3, A4 | BR-EVT-05 |
+| QĐ-19 | Đổi hàng sau bán: phiếu trả = E4, đơn đổi = E2 | A5 | BR-EVT-06 |
+| QĐ-20 | Loại khách lẻ `KHACHLE` khỏi Khách hàng mới; giá vốn đơn đặt = giá vốn hiện hành tại ngày tạo | A6, A7 | M03, M07 |
+| QĐ-21 | Giữ số liệu chi nhánh đã đóng trong tổng | A8 | BR-MD-04 |
+| QĐ-22 | Mã quyền theo vai trò; ẩn GMV bằng `null` + `gmvHidden` | B1, B4, B5 | BR-ROLE-01 |
+| QĐ-23 | (thay bằng QĐ-28) | B3 | — |
+| QĐ-24 | KPI chi nhánh theo mục tiêu ngày theo loại ngày (Trong tuần / Cuối tuần / Lễ) | C1 | BR-TGT-03, 7.5 |
+| QĐ-25 | Mục tiêu doanh số là GMV | C2 | BR-TGT-07 |
+| QĐ-26 | Doanh thu thực thu = Σ phiếu thu (POS chỉ có chứng từ phiếu thu) | A10 | M04, E8 |
+| QĐ-27 | Cửa hàng của MANAGER = "Cửa hàng đang quản lý" (phân quyền chi nhánh của tài khoản trong Identity) | B2 | BR-ROLE-01 |
+| QĐ-28 | Khu vực & Cụm cửa hàng lấy từ HRM; bộ lọc 3 cấp Khu vực → Cụm → Chi nhánh | B3 | BR-MD-01, BR-FLT-01 |
+| QĐ-29 | Order Aging theo 2 chặng: Đặt hàng, Hoàn thành đơn hàng | D1 | FR-OP-01 |
+| QĐ-30 | Chiến dịch theo mã chiến dịch trên đơn (CTKM / voucher); phương thức thanh toán theo mã riêng | D3 | FR-OP-05, FR-OP-06 |
+| QĐ-31 | Hoãn bảng Lab (chưa có Lab) | D4 | FR-HR-04 |
+
 **Quyết định PM bổ sung để tài liệu nhất quán** (đổi được nếu BOD muốn khác):
 | Mã | Nội dung |
 |---|---|
@@ -988,6 +1016,9 @@ Trong CN-A tháng 9: NV1 hạng 1/2, NV2 hạng 2/2. Điều chỉnh tháng 10 g
 | PM-03 | Phân tích theo sản phẩm, thương hiệu, nhân viên dùng **GMV** (BR-DIM-02) |
 | PM-04 | Waterfall tách 3 cột giảm trừ (Trả hàng, Đổi hàng, Hủy đơn đặt) để minh bạch |
 | PM-05 | Tỷ lệ trả hàng theo hóa đơn dùng mẫu số Volume gộp (M02g) |
+| PM-06 | Bộ lọc đa chiều (FR-FLT-03, làm ngày 18/10). Phạm vi áp dụng theo FR-FLT-05.<br>**Ngành hàng / Thương hiệu:** lọc theo **dòng hàng** (BR-DIM-01).<br>**Giới tính khách:** theo hồ sơ khách tại thời điểm tạo đơn; có thêm nhóm "Không xác định".<br>**Phân khúc hóa đơn:** theo **giá trị đơn gốc** (BR-VAL-03), cùng 5 dải với FR-OP-04.<br>**Người bán (PIC):** người bán gán trên đơn gốc (PM-02).<br>**Trạng thái đơn:** trạng thái **hiện tại** của **chứng từ gốc** (`RootOrderId`), gồm 5 giá trị:<br>• Đơn đặt **Đang mở**: POS `PRE_ORDER_DRAFT` (Đơn tạm), `PRE_ORDER_VERIFIED`, `PRE_ORDER_SHIPPING`.<br>• Đơn đặt **Hoàn thành**: `PRE_ORDER_COMPLETED` và không có sự kiện Kết thúc.<br>• Đơn đặt **Kết thúc**: có sự kiện E5.<br>• Đơn đặt **Hủy**: có sự kiện E6, hoặc `PRE_ORDER_CANCELLED`.<br>• **Đơn hàng bán trực tiếp (Hoàn thành)**: chứng từ gốc không phải đơn đặt.<br>Không có lựa chọn "Đơn hàng chưa hoàn thành", vì đơn hàng chỉ phát sinh doanh số khi Hoàn thành (E2). Trạng thái chỉ suy ra từ sự kiện doanh thu và bảng mirror đơn đặt của V2, **không** dùng bảng `ReportOrderStatistic` cũ.<br>**Phân khúc hóa đơn** lấy giá trị của **sự kiện ghi nhận đơn gốc** (E1/E2 cùng `RootOrderId`), kể cả cho sự kiện trả / kết thúc / hủy.<br>**Widget không áp dụng một chiều đang lọc:** API trả danh sách chiều không áp dụng, giao diện hiện "Không áp dụng bộ lọc: &lt;chiều&gt;". Mục tiêu KPI không đổi theo đa chiều. |
+| PM-07 | Tab Sản phẩm của bảng xếp hạng (FR-EX-07): Top theo GMV của dòng hàng trong phạm vi; cột Tỷ trọng = GMV sản phẩm / GMV phạm vi; khi GMV bị ẩn thì ẩn cột GMV, giữ Tỷ trọng và Số lượng |
+| PM-08 | "Xem toàn bộ danh mục" (FR-PR-06) mở modal "Xem chi tiết dữ liệu" (FR-CMN-01) với toàn bộ danh sách sản phẩm của bảng, không giới hạn Top |
 
 ---
 
