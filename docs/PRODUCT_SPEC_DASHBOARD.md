@@ -562,7 +562,7 @@ Mỗi thẻ có: giá trị + đơn vị, phụ đề, % so kỳ trước (mũi 
 
 #### FR-EX-06 — Xu hướng lũy kế & Tiến độ kế hoạch
 **Hiển thị:**
-- Chế độ **Tiến độ kế hoạch** — "Đồng bộ cả 3": 3 thẻ (GMV lũy kế, DTT lũy kế, Nợ treo) + 3 biểu đồ (lũy kế thực tế vs đường tiến độ chuẩn) đồng bộ hover. Mỗi biểu đồ có nút phóng to; chế độ đơn lẻ có nút "← Quay lại xem đồng bộ cả 3".
+- Chế độ **Tiến độ kế hoạch** — "Đồng bộ cả 3": 3 thẻ (GMV lũy kế, DTT lũy kế, Nợ treo) + biểu đồ lũy kế thực tế vs đường tiến độ chuẩn cho GMV và DTT (đồng bộ hover). **Chart Nợ treo bị chủ đích bỏ đi ở bản 1 (UI-07)**; chỉ hiển thị thẻ Nợ treo. Mỗi biểu đồ có nút phóng to; chế độ đơn lẻ có nút "← Quay lại xem đồng bộ cả 3".
 - Chế độ **Combo**: cột phát sinh từng bucket + đường lũy kế + đường kế hoạch. Vào Combo từ "Đồng bộ cả 3" → tự chọn GMV, ẩn nút "Đồng bộ cả 3".
 - Nhãn trạng thái: "Vượt tiến độ +x%" (xanh) / "Chậm tiến độ −x%" (đỏ); hộp "Nhận xét tiến độ".
 
@@ -737,6 +737,8 @@ Không hiển thị trong bản 1: hiện chưa có Lab và chưa có dữ liệ
 | Phiên bản | Hệ thống sinh, tăng theo (Đối tượng, Chu kỳ) |
 | Trạng thái | Bản nháp · Đang áp dụng · Đã kết thúc · Lưu trữ |
 | Audit | Người tạo/sửa, thời điểm, nguồn (Wizard / Import + tên file) |
+
+**Quyết định (UI-08 — chủ đích, không phải bug):** Bản 1 chỉ triển khai phạm vi **Chi nhánh** và các chỉ số **GMV/Traffic**. Các chỉ số DTT/conversion/AOV/CSAT và phạm vi Công ty/Khu vực được hoãn lại; không coi là thiếu hụt cần sửa. Sẽ bổ sung ở bản sau nếu cần.
 
 **Vòng đời:** Bản nháp → Đang áp dụng → Đã kết thúc (tự động khi hết chu kỳ); Đang áp dụng → Lưu trữ (khi bị ghi đè hoặc xóa).
 - **BR-KPI-01.** Mỗi (Đối tượng, khoảng ngày) có tối đa **1** KPI "Đang áp dụng" (ngoại trừ chiến dịch theo BR-TGT-04).
