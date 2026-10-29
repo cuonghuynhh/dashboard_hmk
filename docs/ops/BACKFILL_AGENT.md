@@ -21,13 +21,37 @@ Agent **không** làm các việc dưới đây. Thiếu việc nào thì agent 
 - [ ] Server có Postgres (cùng major version với production), MySQL, .NET 9 SDK, git, `psql`, `flock`. Đĩa mã hóa.
 - [ ] Server **không có đường mạng tới production**. Chiều ra đã bị chặn.
 - [ ] Đã restore các DB `pos`, `report` (Postgres) và `zns` (MySQL) từ cùng một lần backup. Đã tạo DB `hangfire` rỗng.
-- [ ] `/srv/backfill/report.api` checkout **đúng commit đang chạy trên production**, đã build bằng lệnh `dotnet build tools/Report.SequentialSync/Report.SequentialSync.csproj -c Release`.
+- [ ] `/srv/backfill/report.api` đã checkout và build đúng phiên bản ở mục 1a.
 - [ ] Đã tạo thư mục `/srv/backfill/state` và `/srv/backfill/logs`.
 - [ ] File `/srv/backfill/backfill.env` (quyền 600) có các biến sau, tất cả trỏ tới `localhost`:
   - `ConnectionStrings__Default` (DB `report`), `ConnectionStrings__Pos`, `ConnectionStrings__Zns`, `Hangfire__ConnectionString`;
   - `REPORT_PSQL_URL`: chuỗi `psql` tới DB `report` trên bản sao;
   - `BACKFILL_T`: ngày trước ngày backup, dạng `yyyy-MM-dd`;
   - `BOD_ACCOUNT_ID`: GUID một tài khoản BOD, dùng để đối soát.
+
+### 1a. Mã nguồn report.api: lấy từ đâu
+
+Lấy report.api từ **nhánh `main`** của repo `eggstech/report.api`. Nhánh này đã merge bản phát hành Dashboard V2 ngày 29/10/2026 (PR #160) và đã được deploy lên production. Ghim đúng commit dưới đây. Không lấy main mới hơn: nếu main có commit mới sau ngày này mà production chưa deploy, code sẽ lệch với schema của bản backup.
+
+| Mục | Giá trị |
+| --- | --- |
+| Repo | `https://github.com/eggstech/report.api.git` |
+| Nhánh | `main` |
+| Commit ghim | `dd2b9ba3dfb1339f1eaf760ed876e1811e3bb004` (`dd2b9ba`, "Merge pull request #160 from eggstech/release/dashboard-v2-2026-10-29", 29/10/2026 15:22 +07:00) |
+| Migration cuối trong code | `20261028092731_DropNarrowEventDateSiteIdIndex` |
+| Công cụ dùng | `tools/Report.SequentialSync` |
+
+Người làm, chạy trên máy có quyền đọc GitHub, trước khi chép mã nguồn lên server backfill. Server backfill không ra được Internet, nên mã nguồn và gói NuGet phải chuẩn bị sẵn ở bước này:
+
+```bash
+git clone --branch main https://github.com/eggstech/report.api.git /srv/backfill/report.api
+cd /srv/backfill/report.api
+git checkout --detach dd2b9ba3dfb1339f1eaf760ed876e1811e3bb004
+dotnet restore tools/Report.SequentialSync/Report.SequentialSync.csproj
+dotnet build tools/Report.SequentialSync/Report.SequentialSync.csproj -c Release --no-restore
+```
+
+Nếu production được deploy lại từ một commit khác trước ngày lấy backup, dùng commit đó thay cho commit ghim. Sửa bảng trên cho khớp, rồi mới giao cho agent.
 
 ---
 
@@ -82,6 +106,18 @@ Không lấy được khóa thì báo "đã có phiên khác" rồi dừng.
 3. `T` có dạng `yyyy-MM-dd`, không sau ngày hôm nay, và giống `T` đã ghi trong `$J` ở các phiên trước.
 4. Không có tiến trình backfill nào khác: `pgrep -f Report.SequentialSync` không trả về gì.
 5. Các file `$ST/*.state` (nếu có) chỉ chứa một ngày dạng `yyyy-MM-dd`, không sau `T`.
+6. Mã nguồn đúng commit ghim ở mục 1a và chưa bị sửa:
+   - `git rev-parse HEAD` phải ra `dd2b9ba3dfb1339f1eaf760ed876e1811e3bb004`;
+   - `git status --porcelain --untracked-files=no` phải không in gì;
+   - file `tools/Report.SequentialSync/bin/Release/net9.0/Report.SequentialSync.dll` phải tồn tại.
+
+   Không đạt thì dừng. Không tự `checkout` hay build lại.
+7. Schema của bản backup khớp với code:
+   `q 'SELECT max("MigrationId") FROM "__EFMigrationsHistory";'` phải ra `20261028092731_DropNarrowEventDateSiteIdIndex`.
+   - Ra migration cũ hơn: bản backup được lấy trước lần deploy ngày 29/10.
+   - Ra migration mới hơn: production đã deploy bản mới hơn.
+
+   Cả hai trường hợp đều dừng và báo người.
 
 ### 4.3 Chọn việc cần làm
 
@@ -223,6 +259,7 @@ Với mọi tình huống dưới đây:
 | --- | --- |
 | Kiểm tra `localhost` không đạt, hoặc log nhắc tới host khác | **KHẨN**: có thể tool đang trỏ tới production |
 | Cùng một ngày lỗi ở 2 lần chạy liên tiếp (kể cả qua 2 phiên) | Ghi ngày và từ khóa lỗi |
+| Sai commit, mã nguồn bị sửa, hoặc migration cuối không khớp (mục 4.2 ý 6–7) | Cần người kiểm tra lại commit đang chạy trên production |
 | Lỗi thiếu cột hoặc thiếu bảng | Có thể code khác phiên bản schema của backup |
 | Lỗi MySQL hoặc `Zns` | Có thể thiếu bản restore `Zns` |
 | Đĩa còn dưới 10% | Cần nới đĩa |
