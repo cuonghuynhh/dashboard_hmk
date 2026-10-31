@@ -349,9 +349,9 @@ Mỗi tính năng: **Mục đích → Mô tả & tương tác → Quy tắc nghi
 ### 7.1. Trang Tổng quan (Executive View) — chỉ BOD
 Thứ tự hiển thị: (1) 9 thẻ tài chính → (2) GMV vs DTT | Waterfall → (3) Hiệu quả đơn hàng → (4) Phân rã nguồn GMV → (5) Xu hướng lũy kế & Tiến độ kế hoạch → (6) Bảng xếp hạng → (7) Bản đồ hiệu suất chi nhánh → (8) Phân tích Tăng trưởng.
 
-#### FR-EX-01 — Thẻ chỉ số tài chính (9 thẻ)
+#### FR-EX-01 — Thẻ chỉ số tài chính (10 thẻ)
 **Mục đích:** bức tranh tài chính tổng hợp của phạm vi đang lọc, so với kỳ trước.
-**Mô tả:** Hàng trên 5 thẻ: GMV (Sức bán) · Khách hàng mới · Doanh thu · Giá trị điều chỉnh · Doanh thu thuần. Hàng dưới 4 thẻ: Nợ treo · Biên lợi nhuận gộp · Đơn hàng (Volume) · AOV. Mỗi thẻ có: giá trị + đơn vị, phụ đề, % so kỳ trước (mũi tên + màu), sparkline theo ngày, chân thẻ khoảng ngày, icon (i) với định nghĩa + công thức.
+**Mô tả:** Hàng trên 5 thẻ: GMV (Sức bán) · Đơn hàng (Volume) · AOV · UPT (Số SP / đơn) · Giá trị điều chỉnh. Hàng dưới 5 thẻ: Doanh thu thuần · Biên lợi nhuận gộp · Doanh thu (thực thu) · Nợ treo · Khách hàng mới. Mỗi thẻ có: giá trị + đơn vị, phụ đề, % so kỳ trước (mũi tên + màu), sparkline theo ngày, chân thẻ khoảng ngày, icon (i) với định nghĩa + công thức.
 **Quy tắc:** M01–M10 (mục 6.2); BR-CMP-01, 04, 05, 06, 07; phụ đề thẻ GMV và AOV hiển thị bóc tách Trước VAT | VAT (M01a); phụ đề Nợ treo "Chiếm x,x% GMV".
 **Tương tác:** hover (i) **trên icon** (không phải toàn thẻ) hiện tooltip; hover sparkline hiện giá trị ngày (P2).
 

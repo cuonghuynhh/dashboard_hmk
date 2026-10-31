@@ -272,6 +272,7 @@ M03(K, P) = COUNT DISTINCT kh  với  MIN(ngày tạo các đơn ghi nhận GMV 
 ```
 M04(K, P) = Σ phieu_thu.so_tien  với ngay ∈ K, đơn ∈ P        // mọi phiếu thu (QĐ-26)
             (không gồm phí vận chuyển; không trừ hoàn tiền; không tính phiếu "chuyển cọc")
+            Phiếu thu có phương thức GOTIT hoặc VOUCHER không tính vào Doanh thu thực thu (quyết định ngày 31/10/2026).
 ```
 - M04 có thể lớn hơn M01 trong một kỳ (thu tiền của đơn kỳ trước) — hợp lệ.
 
@@ -503,8 +504,9 @@ Mỗi widget: **Mục đích · Hiển thị · Chỉ số · Tương tác · Qu
 ### 7.1. Trang Tổng quan — BOD
 Thứ tự: (1) Thẻ tài chính → (2) GMV vs DTT | Waterfall → (3) Hiệu quả đơn hàng → (4) Phân rã nguồn GMV → (5) Xu hướng lũy kế & Tiến độ kế hoạch → (6) Bảng xếp hạng → (7) Bản đồ hiệu suất chi nhánh → (8) Phân tích Tăng trưởng.
 
-#### FR-EX-01 — Thẻ chỉ số tài chính (9 thẻ)
-**Hiển thị:** hàng 1: GMV · Khách hàng mới · Doanh thu (thực thu) · Giá trị điều chỉnh · Doanh thu thuần. Hàng 2: Nợ treo · Biên lợi nhuận gộp · Đơn hàng (Volume) · AOV.
+#### FR-EX-01 — Thẻ chỉ số tài chính (10 thẻ)
+**Hiển thị:** hàng 1: GMV · Đơn hàng (Volume) · AOV · UPT · Giá trị điều chỉnh. Hàng 2: Doanh thu thuần · Biên lợi nhuận gộp · Doanh thu (thực thu) · Nợ treo · Khách hàng mới.
+Thứ tự kể chuyện: sức bán → thành phần đơn hàng → điều chỉnh → còn lại → lợi nhuận → tiền thu → nợ → tăng trưởng.
 Mỗi thẻ có: giá trị + đơn vị, phụ đề, % so kỳ trước (mũi tên + màu), sparkline theo ngày, chân thẻ khoảng ngày, icon (i).
 | Thẻ | Giá trị | Phụ đề |
 |---|---|---|
@@ -517,6 +519,7 @@ Mỗi thẻ có: giá trị + đơn vị, phụ đề, % so kỳ trước (mũi 
 | Biên lợi nhuận gộp | M07 | "Trên Doanh thu thuần" |
 | Đơn hàng (Volume) | M02 | "Gộp: M02g · Kết thúc/Hủy: −k" |
 | AOV | M08 | "Trước VAT: …" |
+| Số SP / đơn (UPT) | M09 | "Tổng SL: x SP" |
 
 **Tương tác:** hover/focus icon (i) → định nghĩa + công thức theo mục 3; hover sparkline → giá trị ngày [P2].
 **AC**
